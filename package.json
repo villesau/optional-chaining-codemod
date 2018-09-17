@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "jest": "^23.6.0",
-    "jscodeshift": "^0.5.1"
+    "jscodeshift": "^0.5.1",
+    "prettier": "^1.14.2"
   }
 }
