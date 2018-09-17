@@ -88,13 +88,9 @@ module.exports = function(fileInfo, api, options) {
         }
       })
       .replaceWith(node => replaceGetWithOptionalChain(node, j));
-    const lodashCallCount = ast.find("CallExpression", {
-      callee: {
-        object: { name: lodashDefaultImportName }
-      }
-    }).length;
-    if (lodashCallCount === 0) {
-      ast
+    const lodashIdentifiers = ast.find("Identifier", {name: lodashDefaultImportName});
+    if (lodashIdentifiers.length === 1 && lodashIdentifiers.get().parent.value.type === 'ImportDefaultSpecifier') {
+      const importDeclaration = ast
         .find("ImportDeclaration", {
           source: { type: "Literal", value: "lodash" },
           specifiers: [
@@ -103,8 +99,10 @@ module.exports = function(fileInfo, api, options) {
               local: { name: lodashDefaultImportName }
             }
           ]
-        })
-        .remove();
+        });
+        if(importDeclaration.get().value.specifiers.length === 1) {
+          importDeclaration.remove();
+        }
     }
   }
 
