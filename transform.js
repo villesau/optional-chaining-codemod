@@ -20,7 +20,8 @@ const replaceStringWithOptionalChain = (node, j) =>
     (p, c) =>
       j.optionalMemberExpression(
         p,
-        isNaN(c) ? j.identifier(c) : j.literal(parseInt(c))
+        isNaN(c) ? j.identifier(c) : j.literal(parseInt(c)),
+        !isNaN(c)
       ),
     node.value.arguments[0]
   );
