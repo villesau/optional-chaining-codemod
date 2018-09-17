@@ -1,10 +1,20 @@
 const stp = require('./tra_stp');
 
-const replaceGetWithOptionalChain = (node, j) =>
+const replaceArraywithOptionalChain = (node, j) => node.value.arguments[1].elements.reduce(
+  (p, c) => j.optionalMemberExpression(p, c.type === 'Literal' ? j.identifier(c.value) : j.identifier(c.name), c.type === 'Identifier'),
+  node.value.arguments[0]
+);
+
+const replaceStringWithOptionalChain = (node, j) =>
   stp(node.value.arguments[1].value).reduce(
-    (p, c) => j.optionalMemberExpression(p, j.identifier(c)),
+    (p, c) => j.optionalMemberExpression(p, isNaN(c) ? j.identifier(c) : j.literal(parseInt(c))),
     node.value.arguments[0]
   );
+
+const replaceGetWithOptionalChain = (node, j) =>
+  node.value.arguments[1].type === 'ArrayExpression' ?
+    replaceArraywithOptionalChain(node, j) :
+    replaceStringWithOptionalChain(node, j);
 
 module.exports = function (fileInfo, api, options) {
   const j = api.jscodeshift;
@@ -19,7 +29,7 @@ module.exports = function (fileInfo, api, options) {
       .replaceWith(node => replaceGetWithOptionalChain(node, j));
     const parent = getImportSpecifier.get().parent;
     getImportSpecifier.remove();
-    if(parent.value.specifiers.length === 0) {
+    if (parent.value.specifiers.length === 0) {
       parent.prune();
     }
   }

@@ -1,3 +1,5 @@
 const lol = jep?.a?.b?.c;
 const lol1 = jep?.a?.b?.c;
 const lol2 = jep?.a?.b?.c;
+const lol3 = jep?.a?.[2]?.c;
+const lol4 = jep?.a?.[lol5]?.c;
