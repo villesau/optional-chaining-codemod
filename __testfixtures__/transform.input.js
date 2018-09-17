@@ -1,3 +1,4 @@
+// @flow
 import _ from 'lodash';
 import { get } from 'lodash';
 import gett from 'lodash/get';

@@ -46,6 +46,10 @@ const replaceGetWithOptionalChain = (node, j) =>
 module.exports = function(fileInfo, api, options) {
   const j = api.jscodeshift;
   const ast = j(fileInfo.source);
+  const getFirstNode = () => ast.find(j.Program).get('body', 0).node;
+  // Save the comments attached to the first node
+  const firstNode = getFirstNode();
+  const { comments } = firstNode;
   const getImportSpecifier = ast
     .find("ImportDeclaration", { source: { type: "Literal", value: "lodash" } })
     .find("ImportSpecifier", { imported: { name: "get" } });
@@ -104,6 +108,10 @@ module.exports = function(fileInfo, api, options) {
           importDeclaration.remove();
         }
     }
+  }
+  const firstNode2 = getFirstNode();
+  if (firstNode2 !== firstNode) {
+    firstNode2.comments = comments;
   }
 
   return ast.toSource();
