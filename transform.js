@@ -5,8 +5,12 @@ const replaceArrayWithOptionalChain = (node, j) =>
     (p, c) =>
       j.optionalMemberExpression(
         p,
-        c.type === "Identifier" ? j.identifier(c.name) : j.identifier(c.value),
         c.type === "Identifier"
+          ? c
+          : isNaN(c.value)
+            ? j.identifier(c.value)
+            : j.literal(parseInt(c.value)),
+        c.type === "Identifier" || !isNaN(c.value)
       ),
     node.value.arguments[0]
   );
