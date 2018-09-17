@@ -1,11 +1,11 @@
 const stp = require("./tra_stp");
 
-const replaceArraywithOptionalChain = (node, j) =>
+const replaceArrayWithOptionalChain = (node, j) =>
   node.value.arguments[1].elements.reduce(
     (p, c) =>
       j.optionalMemberExpression(
         p,
-        c.type === "Literal" ? j.identifier(c.value) : j.identifier(c.name),
+        c.type === "Identifier" ? j.identifier(c.name) : j.identifier(c.value),
         c.type === "Identifier"
       ),
     node.value.arguments[0]
@@ -21,10 +21,22 @@ const replaceStringWithOptionalChain = (node, j) =>
     node.value.arguments[0]
   );
 
-const replaceGetWithOptionalChain = (node, j) =>
+const generateOptionalChain = (node, j) =>
   node.value.arguments[1].type === "ArrayExpression"
-    ? replaceArraywithOptionalChain(node, j)
+    ? replaceArrayWithOptionalChain(node, j)
     : replaceStringWithOptionalChain(node, j);
+
+const addWithNullishCoalescing = (node, j) =>
+  j.logicalExpression(
+    "??",
+    generateOptionalChain(node, j),
+    node.value.arguments[2]
+  );
+
+const replaceGetWithOptionalChain = (node, j) =>
+  node.value.arguments[2]
+    ? addWithNullishCoalescing(node, j)
+    : generateOptionalChain(node, j);
 
 module.exports = function(fileInfo, api, options) {
   const j = api.jscodeshift;

@@ -1,8 +1,11 @@
 import _ from 'lodash';
 import { get } from 'lodash';
 import gett from 'lodash/get';
-const lol = _.get(jep, 'a.b.c');
-const lol1 = get(jep, 'a.b.c');
-const lol2 = gett(jep, 'a.b.c');
-const lol3 = gett(jep, 'a[2].c');
-const lol4 = gett(jep, ['a', lol5, 'c']);
+const foo = _.get(bar, 'a.b.c');
+const foo1 = get(bar, 'a.b.c');
+const foo2 = gett(bar, 'a.b.c');
+const foo3 = gett(bar, 'a[2].c');
+const foo4 = gett(bar, ['a', foo5, 'c']);
+const foo5 = gett(bar, ['a', foo5, 'c'], 123);
+const foo6 = gett(bar, ['a', foo5, 'c'], 'what');
+const foo7 = gett(bar, ['a', foo5, 'c'], barr);
