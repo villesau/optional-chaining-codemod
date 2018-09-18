@@ -12,3 +12,4 @@ const foo = bar?.a?.[foo5]?.c ?? barr;
 const foo = bar?.a?.[foo5];
 const foo = bar?.a?.[foo5]?.smthng;
 const foo = bar?.[someKey];
+const foo = that.foo?.[that.bar];

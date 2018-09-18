@@ -15,3 +15,4 @@ const foo = gett(bar, ['a', foo5, 'c'], barr);
 const foo = _.get(bar, `a.${foo5}`);
 const foo = _.get(bar, `a.${foo5}.smthng`);
 const foo = _.get(bar, someKey);
+const foo = _.get(that.foo, that.bar);
