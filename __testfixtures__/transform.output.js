@@ -8,3 +8,5 @@ const foo = bar?.a?.[321]?.c;
 const foo = bar?.a?.[foo5]?.c ?? 123;
 const foo = bar?.a?.[foo5]?.c ?? 'what';
 const foo = bar?.a?.[foo5]?.c ?? barr;
+const foo = bar?.a?.[foo5];
+const foo = bar?.a?.[foo5]?.smthng;

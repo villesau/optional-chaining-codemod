@@ -11,3 +11,5 @@ const foo = gett(bar, ['a', 321, 'c']);
 const foo = gett(bar, ['a', foo5, 'c'], 123);
 const foo = gett(bar, ['a', foo5, 'c'], 'what');
 const foo = gett(bar, ['a', foo5, 'c'], barr);
+const foo = _.get(bar, `a.${foo5}`);
+const foo = _.get(bar, `a.${foo5}.smthng`);

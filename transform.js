@@ -15,21 +15,53 @@ const replaceArrayWithOptionalChain = (node, j) =>
     node.value.arguments[0]
   );
 
-const replaceStringWithOptionalChain = (node, j) =>
-  stp(node.value.arguments[1].value).reduce(
+const replaceStringWithOptionalChain = (str, startNode, j) =>
+  stp(str)
+    .filter(Boolean)
+    .reduce(
+      (p, c) =>
+        j.optionalMemberExpression(
+          p,
+          isNaN(c) ? j.identifier(c) : j.literal(parseInt(c)),
+          !isNaN(c)
+        ),
+      startNode
+    );
+
+const replaceTemplateLiteralWithOptionalChain = (node, j) => {
+  const templateLiteral = node.value.arguments[1];
+  const parts = [];
+  templateLiteral.quasis.forEach((q, i) => {
+    parts.push(q);
+    if (templateLiteral.expressions[i]) {
+      parts.push(templateLiteral.expressions[i]);
+    }
+  });
+  return parts.reduce(
     (p, c) =>
-      j.optionalMemberExpression(
-        p,
-        isNaN(c) ? j.identifier(c) : j.literal(parseInt(c)),
-        !isNaN(c)
-      ),
+      c.type === "TemplateElement"
+        ? replaceStringWithOptionalChain(c.value.cooked, p, j)
+        : j.optionalMemberExpression(p, c, true),
     node.value.arguments[0]
   );
+};
 
-const generateOptionalChain = (node, j) =>
-  node.value.arguments[1].type === "ArrayExpression"
-    ? replaceArrayWithOptionalChain(node, j)
-    : replaceStringWithOptionalChain(node, j);
+const generateOptionalChain = (node, j) => {
+  switch (node.value.arguments[1].type) {
+    case "ArrayExpression":
+      return replaceArrayWithOptionalChain(node, j);
+    case "TemplateLiteral":
+      return replaceTemplateLiteralWithOptionalChain(node, j);
+    case "Literal":
+      return replaceStringWithOptionalChain(
+        node.value.arguments[1].value,
+        node.value.arguments[0],
+        j
+      );
+    default:
+      throw new Error("argument type not supported");
+  }
+};
 
 const addWithNullishCoalescing = (node, j) =>
   j.logicalExpression(
@@ -46,7 +78,7 @@ const replaceGetWithOptionalChain = (node, j) =>
 module.exports = function(fileInfo, api, options) {
   const j = api.jscodeshift;
   const ast = j(fileInfo.source);
-  const getFirstNode = () => ast.find(j.Program).get('body', 0).node;
+  const getFirstNode = () => ast.find(j.Program).get("body", 0).node;
   // Save the comments attached to the first node
   const firstNode = getFirstNode();
   const { comments } = firstNode;
@@ -92,21 +124,25 @@ module.exports = function(fileInfo, api, options) {
         }
       })
       .replaceWith(node => replaceGetWithOptionalChain(node, j));
-    const lodashIdentifiers = ast.find("Identifier", {name: lodashDefaultImportName});
-    if (lodashIdentifiers.length === 1 && lodashIdentifiers.get().parent.value.type === 'ImportDefaultSpecifier') {
-      const importDeclaration = ast
-        .find("ImportDeclaration", {
-          source: { type: "Literal", value: "lodash" },
-          specifiers: [
-            {
-              type: "ImportDefaultSpecifier",
-              local: { name: lodashDefaultImportName }
-            }
-          ]
-        });
-        if(importDeclaration.get().value.specifiers.length === 1) {
-          importDeclaration.remove();
-        }
+    const lodashIdentifiers = ast.find("Identifier", {
+      name: lodashDefaultImportName
+    });
+    if (
+      lodashIdentifiers.length === 1 &&
+      lodashIdentifiers.get().parent.value.type === "ImportDefaultSpecifier"
+    ) {
+      const importDeclaration = ast.find("ImportDeclaration", {
+        source: { type: "Literal", value: "lodash" },
+        specifiers: [
+          {
+            type: "ImportDefaultSpecifier",
+            local: { name: lodashDefaultImportName }
+          }
+        ]
+      });
+      if (importDeclaration.get().value.specifiers.length === 1) {
+        importDeclaration.remove();
+      }
     }
   }
   const firstNode2 = getFirstNode();
