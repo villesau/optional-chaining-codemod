@@ -46,6 +46,13 @@ const replaceTemplateLiteralWithOptionalChain = (node, j) => {
   );
 };
 
+const replaceIdentifierWithTemplateString = (node, j) =>
+  j.optionalMemberExpression(
+    node.value.arguments[0],
+    node.value.arguments[1],
+    true
+  );
+
 const generateOptionalChain = (node, j) => {
   switch (node.value.arguments[1].type) {
     case "ArrayExpression":
@@ -58,6 +65,8 @@ const generateOptionalChain = (node, j) => {
         node.value.arguments[0],
         j
       );
+    case "Identifier":
+      return replaceIdentifierWithTemplateString(node, j);
     default:
       throw new Error("argument type not supported");
   }
