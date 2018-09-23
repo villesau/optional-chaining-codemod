@@ -1,3 +1,4 @@
+const fs = require('fs');
 const stp = require("./tra_stp");
 
 const replaceArrayWithOptionalChain = (node, j) =>
@@ -201,19 +202,27 @@ const mangleLodashGets = (ast, j, options) => {
   }
 };
 
-const logicalExpressionToOptionalChain = node => {
-  const expression = node.value.right;
-  expression.type = "OptionalMemberExpression";
-  if (expression.object.type === "MemberExpression") {
-    expression.object = node.value.left;
+const dive = (node, compare, j) => {
+  if(node.object.type === 'MemberExpression') {
+    const object =  dive(node.object, compare.type === 'OptionalMemberExpression' ? compare.object : compare, j);
+    return j.optionalMemberExpression(object, node.property, false, compare.type === 'Identifier' ? false : object.property.name === compare.property.name);
+  } else if(node.object.name === compare.name) {
+    return j.optionalMemberExpression(node.object, node.property, false, true);
+  } else {
+    return node;
   }
+};
+
+const logicalExpressionToOptionalChain = (node, j) => {
+  const left = node.value.left;
+  const expression = dive(node.value.right, left, j);
   node.replace(expression);
   if (
     node.parent.value.type === "LogicalExpression" &&
     node.parent.value.operator === "&&" &&
     node.parent.value.right.type === "MemberExpression"
   ) {
-    return logicalExpressionToOptionalChain(node.parent);
+    return logicalExpressionToOptionalChain(node.parent, j);
   }
   return expression;
 };
@@ -226,7 +235,7 @@ const mangleNestedObjects = (ast, j, options) => {
   });
 
   nestedObjectAccesses.replaceWith(path =>
-    logicalExpressionToOptionalChain(path.get())
+    logicalExpressionToOptionalChain(path.get(), j)
   );
   return ast;
 };
@@ -235,7 +244,6 @@ module.exports = function(fileInfo, api, options) {
   const j = api.jscodeshift;
   const ast = j(fileInfo.source);
   mangleLodashGets(ast, j, options);
-
   mangleNestedObjects(ast, j, options);
   return ast.toSource();
 };
