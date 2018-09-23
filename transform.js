@@ -101,9 +101,7 @@ const replaceGetWithOptionalChain = (node, j) =>
     ? addWithNullishCoalescing(node, j)
     : generateOptionalChain(node, j);
 
-module.exports = function(fileInfo, api, options) {
-  const j = api.jscodeshift;
-  const ast = j(fileInfo.source);
+const mangleLodashGets = (ast, j, options) => {
   const getFirstNode = () => ast.find(j.Program).get("body", 0).node;
   // Save the comments attached to the first node
   const firstNode = getFirstNode();
@@ -135,9 +133,11 @@ module.exports = function(fileInfo, api, options) {
   const getScopedImport = ast.find("ImportDeclaration", {
     source: { type: "Literal", value: "lodash/get" }
   });
+
   const getScopedSpecifier = getScopedImport
     .find("ImportDefaultSpecifier")
     .find("Identifier");
+
   if (getScopedSpecifier.length) {
     const getScopedName = getScopedSpecifier.get().node.name;
     ast
@@ -199,6 +199,43 @@ module.exports = function(fileInfo, api, options) {
   if (firstNode2 !== firstNode) {
     firstNode2.comments = comments;
   }
+};
 
+const logicalExpressionToOptionalChain = node => {
+  const expression = node.value.right;
+  expression.type = "OptionalMemberExpression";
+  if (expression.object.type === "MemberExpression") {
+    expression.object = node.value.left;
+  }
+  node.replace(expression);
+  if (
+    node.parent.value.type === "LogicalExpression" &&
+    node.parent.value.operator === "&&" &&
+    node.parent.value.right.type === "MemberExpression"
+  ) {
+    return logicalExpressionToOptionalChain(node.parent);
+  }
+  return expression;
+};
+
+const mangleNestedObjects = (ast, j, options) => {
+  const nestedObjectAccesses = ast.find("LogicalExpression", {
+    operator: "&&",
+    left: { type: "Identifier" },
+    right: { type: "MemberExpression" }
+  });
+
+  nestedObjectAccesses.replaceWith(path =>
+    logicalExpressionToOptionalChain(path.get())
+  );
+  return ast;
+};
+
+module.exports = function(fileInfo, api, options) {
+  const j = api.jscodeshift;
+  const ast = j(fileInfo.source);
+  mangleLodashGets(ast, j, options);
+
+  mangleNestedObjects(ast, j, options);
   return ast.toSource();
 };

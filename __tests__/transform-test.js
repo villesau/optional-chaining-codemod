@@ -25,4 +25,8 @@ describe("lodash get to optional chaining", () => {
       );
     });
   });
+
+  describe("mangle nested object checks", () => {
+    defineTest(__dirname, "transform", null, "nestedObjects");
+  });
 });
