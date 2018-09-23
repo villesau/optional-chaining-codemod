@@ -74,6 +74,21 @@ const generateOptionalChain = (node, j) => {
   }
 };
 
+const skip = (node, options) => {
+  switch (node.value.arguments[1].type) {
+    case "ArrayExpression":
+    case "Literal":
+      return false;
+    case "TemplateLiteral":
+      return !!options.skipTemplateStrings;
+    case "Identifier":
+    case "MemberExpression":
+      return !!options.skipVariables;
+    default:
+      throw new Error("argument type not supported");
+  }
+};
+
 const addWithNullishCoalescing = (node, j) =>
   j.logicalExpression(
     "??",
@@ -100,11 +115,20 @@ module.exports = function(fileInfo, api, options) {
     const getName = getImportSpecifier.get().value.local.name;
     ast
       .find("CallExpression", { callee: { name: getName } })
-      .replaceWith(node => replaceGetWithOptionalChain(node, j));
-    const parent = getImportSpecifier.get().parent;
-    getImportSpecifier.remove();
-    if (parent.value.specifiers.length === 0) {
-      parent.prune();
+      .replaceWith(
+        node =>
+          skip(node, options)
+            ? node.get().value
+            : replaceGetWithOptionalChain(node, j)
+      );
+    if (
+      ast.find("CallExpression", { callee: { name: getName } }).length === 0
+    ) {
+      const parent = getImportSpecifier.get().parent;
+      getImportSpecifier.remove();
+      if (parent.value.specifiers.length === 0) {
+        parent.prune();
+      }
     }
   }
 
@@ -118,8 +142,18 @@ module.exports = function(fileInfo, api, options) {
     const getScopedName = getScopedSpecifier.get().node.name;
     ast
       .find("CallExpression", { callee: { name: getScopedName } })
-      .replaceWith(node => replaceGetWithOptionalChain(node, j));
-    getScopedImport.remove();
+      .replaceWith(
+        node =>
+          skip(node, options)
+            ? node.get().value
+            : replaceGetWithOptionalChain(node, j)
+      );
+    if (
+      ast.find("CallExpression", { callee: { name: getScopedName } }).length ===
+      0
+    ) {
+      getScopedImport.remove();
+    }
   }
   const getDefaultSpecifier = ast
     .find("ImportDeclaration", { source: { type: "Literal", value: "lodash" } })
@@ -134,7 +168,12 @@ module.exports = function(fileInfo, api, options) {
           property: { name: "get" }
         }
       })
-      .replaceWith(node => replaceGetWithOptionalChain(node, j));
+      .replaceWith(
+        node =>
+          skip(node, options)
+            ? node.get().value
+            : replaceGetWithOptionalChain(node, j)
+      );
     const lodashIdentifiers = ast.find("Identifier", {
       name: lodashDefaultImportName
     });
