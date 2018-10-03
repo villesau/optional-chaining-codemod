@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require("fs");
 const stp = require("./tra_stp");
 
 const replaceArrayWithOptionalChain = (node, j) =>
@@ -203,10 +203,22 @@ const mangleLodashGets = (ast, j, options) => {
 };
 
 const dive = (node, compare, j) => {
-  if(node.object.type === 'MemberExpression') {
-    const object =  dive(node.object, compare.type === 'OptionalMemberExpression' ? compare.property.name === node.object.property.name ?  compare.object : compare : compare, j);
-    return j.optionalMemberExpression(object, node.property, false, compare.type === 'Identifier' ? false : object.property.name === compare.property.name);
-  } else if(node.object.name === compare.name) {
+  if (node.object.type === "MemberExpression") {
+    const toCompare =
+      compare.type === "OptionalMemberExpression" &&
+      compare.property.name === node.object.property.name
+        ? compare.object
+        : compare;
+    const object = dive(node.object, toCompare, j);
+    return j.optionalMemberExpression(
+      object,
+      node.property,
+      false,
+      compare.type === "Identifier"
+        ? false
+        : object.property.name === compare.property.name
+    );
+  } else if (node.object.name === compare.name) {
     return j.optionalMemberExpression(node.object, node.property, false, true);
   } else {
     return node;
