@@ -205,7 +205,7 @@ const mangleLodashGets = (ast, j, options) => {
 const dive = (node, compare, j) => {
   if (node.object.type === "MemberExpression") {
     const toCompare =
-      compare.type === "OptionalMemberExpression" &&
+      compare.type.includes("MemberExpression") &&
       compare.property.name === node.object.property.name
         ? compare.object
         : compare;
@@ -214,7 +214,7 @@ const dive = (node, compare, j) => {
       return node;
     }
     return j.optionalMemberExpression(
-      object,
+      compare.type === "MemberExpression" ? compare : object,
       node.property,
       false,
       compare.type === "Identifier"
@@ -246,7 +246,6 @@ const logicalExpressionToOptionalChain = (node, j) => {
 const mangleNestedObjects = (ast, j, options) => {
   const nestedObjectAccesses = ast.find("LogicalExpression", {
     operator: "&&",
-    left: { type: "Identifier" },
     right: { type: "MemberExpression" }
   });
 
