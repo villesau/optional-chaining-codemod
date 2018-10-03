@@ -210,6 +210,9 @@ const dive = (node, compare, j) => {
         ? compare.object
         : compare;
     const object = dive(node.object, toCompare, j);
+    if (object === node.object) {
+      return node;
+    }
     return j.optionalMemberExpression(
       object,
       node.property,
@@ -228,15 +231,16 @@ const dive = (node, compare, j) => {
 const logicalExpressionToOptionalChain = (node, j) => {
   const left = node.value.left;
   const expression = dive(node.value.right, left, j);
-  node.replace(expression);
+  if (expression.type === "OptionalMemberExpression") {
+    node.replace(expression);
+  }
   if (
     node.parent.value.type === "LogicalExpression" &&
     node.parent.value.operator === "&&" &&
     node.parent.value.right.type === "MemberExpression"
   ) {
-    return logicalExpressionToOptionalChain(node.parent, j);
+    logicalExpressionToOptionalChain(node.parent, j);
   }
-  return expression;
 };
 
 const mangleNestedObjects = (ast, j, options) => {
@@ -246,7 +250,7 @@ const mangleNestedObjects = (ast, j, options) => {
     right: { type: "MemberExpression" }
   });
 
-  nestedObjectAccesses.replaceWith(path =>
+  nestedObjectAccesses.forEach(path =>
     logicalExpressionToOptionalChain(path.get(), j)
   );
   return ast;
