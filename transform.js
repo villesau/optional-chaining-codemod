@@ -202,13 +202,13 @@ const mangleLodashGets = (ast, j, options) => {
   }
 };
 const match = (a, b) => {
-  if(b && b.object && a && a.object) {
+  if (b && b.object && a && a.object) {
     return match(a.object, b.object) && a.property.name === b.property.name;
   }
   return !!(a && b && a.name === b.name);
 };
 
-const getDepth = (node, d) => node.object ? getDepth(node.object, d + 1) : d;
+const getDepth = (node, d) => (node.object ? getDepth(node.object, d + 1) : d);
 
 const dive = (node, compare, j) => {
   if (node.object.type === "MemberExpression") {
@@ -259,10 +259,9 @@ const mangleNestedObjects = (ast, j, options) => {
     right: { type: "MemberExpression" }
   });
 
-  const filtered = nestedObjectAccesses.filter(path => path.value.left.type !== 'LogicalExpression');
-  filtered.forEach(path =>
-    logicalExpressionToOptionalChain(path.get(), j)
-  );
+  nestedObjectAccesses
+    .filter(path => path.value.left.type !== "LogicalExpression")
+    .forEach(path => logicalExpressionToOptionalChain(path.get(), j));
   return ast;
 };
 
