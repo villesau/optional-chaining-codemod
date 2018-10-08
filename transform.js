@@ -214,12 +214,7 @@ const dive = (node, compare, j) => {
   if (node.object.type === "MemberExpression") {
     const d1 = getDepth(node, 0);
     const d2 = getDepth(compare, 0);
-    const toCompare =
-      compare.type.includes("MemberExpression") &&
-      compare.property.name === node.object.property.name &&
-      d1 <= d2
-        ? compare.object
-        : compare;
+    const toCompare = d1 <= d2 ? compare.object : compare;
     const propertyMatch = match(compare, node.object);
     const object = propertyMatch ? compare : dive(node.object, toCompare, j);
     if (object === node.object) {

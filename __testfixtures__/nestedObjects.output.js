@@ -7,4 +7,6 @@ const foo = a?.b && a.d.c.d;
 const foo = a?.b.c?.d;
 const foo = a.b?.c;
 const foo = a.b?.b.b;
+const foo = a.b?.b.b.b.b;
+const foo = a?.b.b.b.b.b;
 const foo = a?.b?.c || a.b.c.d;
