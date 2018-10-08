@@ -251,11 +251,10 @@ const logicalExpressionToOptionalChain = (node, j) => {
 const mangleNestedObjects = (ast, j, options) => {
   const nestedObjectAccesses = ast.find("LogicalExpression", {
     operator: "&&",
-    left: { type: "Identifier" },
     right: { type: "MemberExpression" }
   });
 
-  nestedObjectAccesses.forEach(path =>
+  nestedObjectAccesses.filter(path => path.value.left.type !== 'LogicalExpression').forEach(path =>
     logicalExpressionToOptionalChain(path.get(), j)
   );
   return ast;
