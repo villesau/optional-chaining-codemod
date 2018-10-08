@@ -201,6 +201,12 @@ const mangleLodashGets = (ast, j, options) => {
     firstNode2.comments = comments;
   }
 };
+const match = (a, b) => {
+  if(b && b.object && a && a.object) {
+    return match(a.object, b.object) && a.property.name === b.property.name;
+  }
+  return !!(a && b && a.name === b.name);
+};
 
 const dive = (node, compare, j) => {
   if (node.object.type === "MemberExpression") {
@@ -209,17 +215,16 @@ const dive = (node, compare, j) => {
       compare.property.name === node.object.property.name
         ? compare.object
         : compare;
-    const object = dive(node.object, toCompare, j);
+    const propertyMatch = match(compare, node.object);
+    const object = propertyMatch ? compare : dive(node.object, toCompare, j);
     if (object === node.object) {
       return node;
     }
     return j.optionalMemberExpression(
-      compare.type === "MemberExpression" ? compare : object,
+      object,
       node.property,
       false,
-      compare.type === "Identifier"
-        ? false
-        : object.property.name === compare.property.name
+      propertyMatch
     );
   } else if (node.object.name === compare.name) {
     return j.optionalMemberExpression(node.object, node.property, false, true);
@@ -246,6 +251,7 @@ const logicalExpressionToOptionalChain = (node, j) => {
 const mangleNestedObjects = (ast, j, options) => {
   const nestedObjectAccesses = ast.find("LogicalExpression", {
     operator: "&&",
+    left: { type: "Identifier" },
     right: { type: "MemberExpression" }
   });
 

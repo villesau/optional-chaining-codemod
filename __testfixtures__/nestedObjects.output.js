@@ -4,4 +4,4 @@ const foo = a?.b.c.d;
 const foo = a?.b.c.d;
 const foo = a?.b?.c.d;
 const foo = a?.b && a.d.c.d;
-const foo = a.b?.c;
+const foo = a?.b.c?.d;
