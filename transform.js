@@ -208,15 +208,19 @@ const match = (a, b) => {
   return !!(a && b && a.name === b.name);
 };
 
+const getDepth = (node, d) => node.object ? getDepth(node.object, d + 1) : d;
+
 const dive = (node, compare, j) => {
   if (node.object.type === "MemberExpression") {
+    const d1 = getDepth(node, 0);
+    const d2 = getDepth(compare, 0);
     const toCompare =
       compare.type.includes("MemberExpression") &&
       compare.property.name === node.object.property.name
         ? compare.object
         : compare;
     const propertyMatch = match(compare, node.object);
-    const object = propertyMatch ? compare : dive(node.object, toCompare, j);
+    const object = propertyMatch ? compare : dive(node.object, d1 > d2 ? compare : toCompare, j);
     if (object === node.object) {
       return node;
     }
@@ -254,7 +258,8 @@ const mangleNestedObjects = (ast, j, options) => {
     right: { type: "MemberExpression" }
   });
 
-  nestedObjectAccesses.filter(path => path.value.left.type !== 'LogicalExpression').forEach(path =>
+  const filtered = nestedObjectAccesses.filter(path => path.value.left.type !== 'LogicalExpression');
+  filtered.forEach(path =>
     logicalExpressionToOptionalChain(path.get(), j)
   );
   return ast;
