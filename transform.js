@@ -1,5 +1,5 @@
 const fs = require("fs");
-const stp = require("./tra_stp");
+const lodashObjectPathParser = require("./lodashObjectPathParser");
 
 const replaceArrayWithOptionalChain = (node, j) =>
   node.value.arguments[1].elements.reduce(
@@ -17,7 +17,7 @@ const replaceArrayWithOptionalChain = (node, j) =>
   );
 
 const replaceStringWithOptionalChain = (str, startNode, j) =>
-  stp(str)
+  lodashObjectPathParser(str)
     .filter(Boolean)
     .reduce(
       (p, c) =>
