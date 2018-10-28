@@ -1,4 +1,3 @@
-const fs = require("fs");
 const lodashObjectPathParser = require("./lodashObjectPathParser");
 
 const replaceArrayWithOptionalChain = (node, j) =>
