@@ -1,5 +1,7 @@
 # Optional chaining codemod
 
+[![Build Status](https://travis-ci.org/villesau/optional-chaining-codemod.svg?branch=master)](https://travis-ci.org/villesau/optional-chaining-codemod)
+
 This is codemod to migrate different types of lodash gets and `a && a.b` kind of 
 expressions to use optional [optional chaining](https://github.com/tc39/proposal-optional-chaining)
 and [nullish coalescing](https://github.com/tc39/proposal-nullish-coalescing) instead.
