@@ -201,10 +201,10 @@ const mangleLodashGets = (ast, j, options) => {
     firstNode2.comments = comments;
   }
 };
-const match = (a, b) => {
+const isPropertyMatch = (a, b) => {
   if (b && b.object && a && a.object) {
     return (
-      match(a.object, b.object) &&
+      isPropertyMatch(a.object, b.object) &&
       a.property.name &&
       b.property.name &&
       a.property.name === b.property.name
@@ -221,7 +221,7 @@ const dive = (node, compare, j) => {
     const d1 = getDepth(node, 0);
     const d2 = getDepth(compare, 0);
     const toCompare = d1 <= d2 ? compare.object : compare;
-    const propertyMatch = match(compare, node.object);
+    const propertyMatch = isPropertyMatch(compare, node.object);
     const object = propertyMatch ? compare : dive(node.object, toCompare, j);
     if (object === node.object) {
       return node;
