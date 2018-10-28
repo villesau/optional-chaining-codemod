@@ -203,12 +203,18 @@ const mangleLodashGets = (ast, j, options) => {
 };
 const match = (a, b) => {
   if (b && b.object && a && a.object) {
-    return match(a.object, b.object) && a.property.name === b.property.name;
+    return (
+      match(a.object, b.object) &&
+      a.property.name &&
+      b.property.name &&
+      a.property.name === b.property.name
+    );
   }
-  return !!(a && b && a.name === b.name);
+  return !!(a && b && a.name && b.name && a.name === b.name);
 };
 
-const getDepth = (node, depth) => (node.object ? getDepth(node.object, depth + 1) : depth);
+const getDepth = (node, depth) =>
+  node.object ? getDepth(node.object, depth + 1) : depth;
 
 const dive = (node, compare, j) => {
   if (node.object.type === "MemberExpression") {
@@ -226,7 +232,11 @@ const dive = (node, compare, j) => {
       false,
       propertyMatch
     );
-  } else if (node.object.name === compare.name) {
+  } else if (
+    node.object.name &&
+    compare.name &&
+    node.object.name === compare.name
+  ) {
     return j.optionalMemberExpression(node.object, node.property, false, true);
   } else {
     return node;
@@ -263,7 +273,7 @@ const mangleNestedObjects = (ast, j, options) => {
 module.exports = function(fileInfo, api, options) {
   const j = api.jscodeshift;
   const ast = j(fileInfo.source);
-  mangleLodashGets(ast, j, options);
   mangleNestedObjects(ast, j, options);
+  mangleLodashGets(ast, j, options);
   return ast.toSource();
 };
