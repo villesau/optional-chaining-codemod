@@ -208,7 +208,7 @@ const match = (a, b) => {
   return !!(a && b && a.name === b.name);
 };
 
-const getDepth = (node, d) => (node.object ? getDepth(node.object, d + 1) : d);
+const getDepth = (node, depth) => (node.object ? getDepth(node.object, depth + 1) : depth);
 
 const dive = (node, compare, j) => {
   if (node.object.type === "MemberExpression") {
