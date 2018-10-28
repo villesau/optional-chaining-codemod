@@ -1,10 +1,34 @@
 {
+  "name": "optional-chaining-codemod",
+  "description": "Codemod to migrate from Lodash get and logical and expressions to optional chaining",
+  "version": "0.1.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/villesau/optional-chaining-codemod.git"
+  },
+  "keywords": [
+    "codemod",
+    "optional",
+    "chaining",
+    "optional chaining",
+    "flow",
+    "flow-type"
+  ],
+  "author": "Ville Saukkonen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/villesau/optional-chaining-codemod/issues"
+  },
+  "homepage": "https://github.com/villesau/optional-chaining-codemod#readme",
   "scripts": {
     "test": "jest"
   },
+  "dependencies": {
+    "jscodeshift": "^0.5.1"
+  },
   "devDependencies": {
     "jest": "^23.6.0",
-    "jscodeshift": "^0.5.1",
     "prettier": "^1.14.2"
   },
   "resolutions": {
