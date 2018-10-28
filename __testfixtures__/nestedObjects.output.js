@@ -10,4 +10,5 @@ const foo = a.b?.b.b;
 const foo = a.b?.b.b.b.b;
 const foo = a?.b.b.b.b.b;
 const foo = a?.b?.c || a.b.c.d;
+const foo = a?.[j.k];
 this.a.b && this.b.c;

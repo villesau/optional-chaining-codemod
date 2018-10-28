@@ -229,7 +229,7 @@ const dive = (node, compare, j) => {
     return j.optionalMemberExpression(
       object,
       node.property,
-      false,
+      object.computed,
       propertyMatch
     );
   } else if (
@@ -237,7 +237,12 @@ const dive = (node, compare, j) => {
     compare.name &&
     node.object.name === compare.name
   ) {
-    return j.optionalMemberExpression(node.object, node.property, false, true);
+    return j.optionalMemberExpression(
+      node.object,
+      node.property,
+      node.computed,
+      true
+    );
   } else {
     return node;
   }
