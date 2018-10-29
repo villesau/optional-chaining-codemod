@@ -1,7 +1,7 @@
 {
   "name": "optional-chaining-codemod",
   "description": "Codemod to migrate from Lodash get and logical and expressions to optional chaining",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "bin": {
     "optional-chaining-codemod": "bin/index.js"
   },
