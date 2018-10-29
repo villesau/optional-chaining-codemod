@@ -12,6 +12,13 @@ coalescing:
 - [babel-plugin-proposal-optional-chaining](https://babeljs.io/docs/en/babel-plugin-proposal-optional-chaining)
 - [babel-plugin-proposal-nullish-coalescing-operator](https://babeljs.io/docs/en/babel-plugin-proposal-nullish-coalescing-operator)
 
+## What it does?
+
+- `a && a.b` becomes `a?.b`
+- `_.get(foo, 'a.b')` and `_.get(foo, ['a', 'b'])` becomes `foo?.a?.b`
+
+You can check out the `__textfixtures__` folder to see full list of supported transformations.
+
 ## Why should I migrate to use optional chaining?
 
 - When using static type checkers like [Flow](https://github.com/facebook/flow), 
