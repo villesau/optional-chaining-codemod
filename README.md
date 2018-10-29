@@ -9,8 +9,8 @@ and [nullish coalescing](https://github.com/tc39/proposal-nullish-coalescing) in
 Following babel plugins are required to transpile optional chaining and nullish
 coalescing:
 
-[babel-plugin-proposal-optional-chaining](https://babeljs.io/docs/en/babel-plugin-proposal-optional-chaining)
-[babel-plugin-proposal-nullish-coalescing-operator](https://babeljs.io/docs/en/babel-plugin-proposal-nullish-coalescing-operator)
+- [babel-plugin-proposal-optional-chaining](https://babeljs.io/docs/en/babel-plugin-proposal-optional-chaining)
+- [babel-plugin-proposal-nullish-coalescing-operator](https://babeljs.io/docs/en/babel-plugin-proposal-nullish-coalescing-operator)
 
 ## Why should I migrate to use optional chaining?
 
