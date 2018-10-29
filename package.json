@@ -3,6 +3,9 @@
   "description": "Codemod to migrate from Lodash get and logical and expressions to optional chaining",
   "version": "0.1.0",
   "main": "index.js",
+  "bin": {
+    "optional-chaining-codemod": "bin/index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/villesau/optional-chaining-codemod.git"
@@ -25,6 +28,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "execa": "^1.0.0",
     "jscodeshift": "^0.5.1"
   },
   "devDependencies": {
