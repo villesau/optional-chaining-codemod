@@ -27,7 +27,7 @@ with flow parser:
 $ optional-chaining-codemod ./**/*.js --parser=flow
 ```
 
-The CLI is similar to [jscodeshift](https://github.com/facebook/jscodeshift)
+The CLI is the same as in [jscodeshift](https://github.com/facebook/jscodeshift)
 except you can omit the transform file.
 
 Alternatively, you can run the codemod using jscodeshift as follows:
