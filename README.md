@@ -6,10 +6,17 @@ This is a codemod to migrate different types of lodash `get` calls and `a && a.b
 expressions to use [optional chaining](https://github.com/tc39/proposal-optional-chaining)
 and [nullish coalescing](https://github.com/tc39/proposal-nullish-coalescing) instead.
 
+Following babel plugins are required to transpile optional chaining and nullish
+coalescing:
+
+[babel-plugin-proposal-optional-chaining](https://babeljs.io/docs/en/babel-plugin-proposal-optional-chaining)
+[babel-plugin-proposal-nullish-coalescing-operator](https://babeljs.io/docs/en/babel-plugin-proposal-nullish-coalescing-operator)
+
 ## Why should I migrate to use optional chaining?
 
 - When using static type checkers like [Flow](https://github.com/facebook/flow), 
-optional chaining provides much better type safety than lodash `get`.
+optional chaining provides much better type safety than lodash `get`. However, optional 
+chaining is not only Flow feature but you can use it with babel already today.
 - It also has a neater syntax than chaining `&&` expressions one after another.
 
 ## Usage
