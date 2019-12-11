@@ -31,26 +31,32 @@ chaining is not only Flow feature but you can use it with babel already today.
 
 ## Install
 
-```
+```bash
 $ yarn global add optional-chaining-codemod
 ```
 
 or 
 
-```
+```bash
 $ npm install -g optional-chaining-codemod
 ```
 
 ## Usage
 
-```
+```bash
 $ optional-chaining-codemod ./**/*.js
 ```
 
 with flow parser:
 
-```
+```bash
 $ optional-chaining-codemod ./**/*.js --parser=flow
+```
+
+with typescript parser:
+
+```bash
+$ optional-chaining-codemod ./**/*.ts --parser=ts
 ```
 
 The CLI is the same as in [jscodeshift](https://github.com/facebook/jscodeshift)
@@ -58,7 +64,7 @@ except you can omit the transform file.
 
 Alternatively, you can run the codemod using jscodeshift as follows:
 
-```
+```bash
 $ yarn global add jscodeshift
 $ yarn add optional-chaining-codemod
 $ jscodeshift -t node_modules/optional-chaining-codemod/transform.js ./**/*.js
