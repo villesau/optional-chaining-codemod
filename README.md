@@ -20,7 +20,7 @@ coalescing:
 - `_.get(foo, 'a.b')` and `_.get(foo, ['a', 'b'])` becomes `foo?.a?.b`
 - `_.get(foo, 'a.b', defaultValue)` becomes `foo?.a?.b ?? defaultValue`
 
-You can check out the `__textfixtures__` folder to see full list of supported transformations.
+You can check out the [`__textfixtures__`](https://github.com/villesau/optional-chaining-codemod/tree/master/__testfixtures__) folder to see full list of supported transformations.
 
 ## Why should I migrate to use optional chaining?
 
