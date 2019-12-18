@@ -13,3 +13,4 @@ const foo11 = bar?.a?.[foo5];
 const foo12 = bar?.a?.[foo5]?.smthng;
 const foo13 = bar?.[someKey];
 const foo14 = that.foo?.[that.bar];
+const foo15 = foo?.bar?.[0]?.[60];

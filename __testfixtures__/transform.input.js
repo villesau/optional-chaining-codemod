@@ -16,3 +16,4 @@ const foo11 = _.get(bar, `a.${foo5}`);
 const foo12 = _.get(bar, `a.${foo5}.smthng`);
 const foo13 = _.get(bar, someKey);
 const foo14 = _.get(that.foo, that.bar);
+const foo15 = get(foo, 'bar[0]["60"]');
