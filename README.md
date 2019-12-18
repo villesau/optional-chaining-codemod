@@ -77,7 +77,7 @@ This codemod has two flags:
 2. `--skipTemplateStrings` to skip template strings passed to lodash `get`
 
 Especially the first case is risky as the variable might actually be something
-like `var bar = "a.b.c"` but produce `_.get(foo, bar) => foo?[bar]`.
+like `var bar = "a.b.c"` and produce from `_.get(foo, bar)` following: `foo?[bar]` although lodash would treat it like `foo?.a?.b?.c"`.
 
 
 ## Contributing
