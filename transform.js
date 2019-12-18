@@ -113,11 +113,10 @@ const mangleLodashGets = (ast, j, options) => {
     const getName = getImportSpecifier.get().value.local.name;
     ast
       .find("CallExpression", { callee: { name: getName } })
-      .replaceWith(
-        node =>
-          skip(node, options)
-            ? node.get().value
-            : replaceGetWithOptionalChain(node, j)
+      .replaceWith(node =>
+        skip(node, options)
+          ? node.get().value
+          : replaceGetWithOptionalChain(node, j)
       );
     if (
       ast.find("CallExpression", { callee: { name: getName } }).length === 0
@@ -142,11 +141,10 @@ const mangleLodashGets = (ast, j, options) => {
     const getScopedName = getScopedSpecifier.get().node.name;
     ast
       .find("CallExpression", { callee: { name: getScopedName } })
-      .replaceWith(
-        node =>
-          skip(node, options)
-            ? node.get().value
-            : replaceGetWithOptionalChain(node, j)
+      .replaceWith(node =>
+        skip(node, options)
+          ? node.get().value
+          : replaceGetWithOptionalChain(node, j)
       );
     if (
       ast.find("CallExpression", { callee: { name: getScopedName } }).length ===
@@ -168,11 +166,10 @@ const mangleLodashGets = (ast, j, options) => {
           property: { name: "get" }
         }
       })
-      .replaceWith(
-        node =>
-          skip(node, options)
-            ? node.get().value
-            : replaceGetWithOptionalChain(node, j)
+      .replaceWith(node =>
+        skip(node, options)
+          ? node.get().value
+          : replaceGetWithOptionalChain(node, j)
       );
     const lodashIdentifiers = ast.find("Identifier", {
       name: lodashDefaultImportName
