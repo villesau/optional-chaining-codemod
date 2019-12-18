@@ -33,8 +33,5 @@
   "devDependencies": {
     "jest": "^23.6.0",
     "prettier": "^1.14.2"
-  },
-  "resolutions": {
-    "recast": "git+https://github.com/villesau/recast.git#e1ded4c1b3ec2f6f1190e591dd0b9a3ba4eeb307"
   }
 }
