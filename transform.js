@@ -225,7 +225,7 @@ const dive = (node, compare, j) => {
     return j.optionalMemberExpression(
       object,
       node.property,
-      object.computed || node.computed,
+      node.computed,
       propertyMatch
     );
   } else if (

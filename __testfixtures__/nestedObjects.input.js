@@ -12,4 +12,5 @@ const foo11 = a && a.b.b.b.b.b;
 const foo12 = a && a.b && a.b.c || a.b.c.d;
 const foo13 = a && a[j.k];
 const foo14 = a.b && a.b[c.d];
+const foo15 = foo[bar] && foo[bar].baz;
 this.a.b && this.b.c;
