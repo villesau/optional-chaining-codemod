@@ -13,4 +13,5 @@ const foo12 = a?.b?.c || a.b.c.d;
 const foo13 = a?.[j.k];
 const foo14 = a.b?.[c.d];
 const foo15 = foo[bar]?.baz;
+const foo16 = foo[0]?.bar;
 this.a.b && this.b.c;

@@ -1,5 +1,5 @@
 const lodashObjectPathParser = require("./lodashObjectPathParser");
-const isValidIdentifier = value => /^([a-zA-Z0-9_])*$/.test(value)
+const isValidIdentifier = value => /^([a-zA-Z0-9_])*$/.test(value);
 
 const replaceArrayWithOptionalChain = (node, j) =>
   node.value.arguments[1].elements.reduce(
@@ -16,21 +16,20 @@ const replaceArrayWithOptionalChain = (node, j) =>
     node.value.arguments[0]
   );
 
-  const replaceStringWithOptionalChain = (str, startNode, j) =>
+const replaceStringWithOptionalChain = (str, startNode, j) =>
   lodashObjectPathParser(str)
     .filter(Boolean)
-    .reduce(
-      (p, c) => {
-        return j.optionalMemberExpression(
-          p,
-          isNaN(c) && isValidIdentifier(c) ?
-            j.identifier(c) : isValidIdentifier(c) ?
-              j.literal(parseInt(c)) : j.literal(c),
-          !isNaN(c) || !isValidIdentifier(c) 
-        )},
-      startNode
-    );
-
+    .reduce((p, c) => {
+      return j.optionalMemberExpression(
+        p,
+        isNaN(c) && isValidIdentifier(c)
+          ? j.identifier(c)
+          : isValidIdentifier(c)
+          ? j.literal(parseInt(c))
+          : j.literal(c),
+        !isNaN(c) || !isValidIdentifier(c)
+      );
+    }, startNode);
 
 const replaceTemplateLiteralWithOptionalChain = (node, j) => {
   const templateLiteral = node.value.arguments[1];
@@ -201,16 +200,20 @@ const mangleLodashGets = (ast, j, options) => {
     firstNode2.comments = comments;
   }
 };
+
+const nameEquals = (a, b) => a.name && b.name && a.name === b.name;
+const valueEquals = (a, b) =>
+  a.value !== undefined && b.value !== undefined && a.value === b.value;
+
 const isPropertyMatch = (a, b) => {
   if (b && b.object && a && a.object) {
     return (
       isPropertyMatch(a.object, b.object) &&
-      a.property.name &&
-      b.property.name &&
-      a.property.name === b.property.name
+      (nameEquals(a.property, b.property) ||
+        valueEquals(a.property, b.property))
     );
   }
-  return !!(a && b && a.name && b.name && a.name === b.name);
+  return !!(a && b && (nameEquals(a, b) || valueEquals(a, b)));
 };
 
 const getDepth = (node, depth) =>
