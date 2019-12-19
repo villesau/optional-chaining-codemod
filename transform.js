@@ -1,4 +1,5 @@
 const lodashObjectPathParser = require("./lodashObjectPathParser");
+const isValidIdentifier = value => /^([a-zA-Z0-9_])*$/.test(value)
 
 const replaceArrayWithOptionalChain = (node, j) =>
   node.value.arguments[1].elements.reduce(
@@ -15,18 +16,21 @@ const replaceArrayWithOptionalChain = (node, j) =>
     node.value.arguments[0]
   );
 
-const replaceStringWithOptionalChain = (str, startNode, j) =>
+  const replaceStringWithOptionalChain = (str, startNode, j) =>
   lodashObjectPathParser(str)
     .filter(Boolean)
     .reduce(
-      (p, c) =>
-        j.optionalMemberExpression(
+      (p, c) => {
+        return j.optionalMemberExpression(
           p,
-          isNaN(c) ? j.identifier(c) : j.literal(parseInt(c)),
-          !isNaN(c)
-        ),
+          isNaN(c) && isValidIdentifier(c) ?
+            j.identifier(c) : isValidIdentifier(c) ?
+              j.literal(parseInt(c)) : j.literal(c),
+          !isNaN(c) || !isValidIdentifier(c) 
+        )},
       startNode
     );
+
 
 const replaceTemplateLiteralWithOptionalChain = (node, j) => {
   const templateLiteral = node.value.arguments[1];
