@@ -20,7 +20,7 @@ coalescing:
 - `_.get(foo, 'a.b')` and `_.get(foo, ['a', 'b'])` becomes `foo?.a?.b`
 - `_.get(foo, 'a.b', defaultValue)` becomes `foo?.a?.b ?? defaultValue`
 
-You can check out the `__textfixtures__` folder to see full list of supported transformations.
+You can check out the [`__textfixtures__`](https://github.com/villesau/optional-chaining-codemod/tree/master/__testfixtures__) folder to see full list of supported transformations.
 
 ## Why should I migrate to use optional chaining?
 
@@ -31,26 +31,32 @@ chaining is not only Flow feature but you can use it with babel already today.
 
 ## Install
 
-```
+```bash
 $ yarn global add optional-chaining-codemod
 ```
 
 or 
 
-```
+```bash
 $ npm install -g optional-chaining-codemod
 ```
 
 ## Usage
 
-```
+```bash
 $ optional-chaining-codemod ./**/*.js
 ```
 
 with flow parser:
 
-```
+```bash
 $ optional-chaining-codemod ./**/*.js --parser=flow
+```
+
+with typescript parser:
+
+```bash
+$ optional-chaining-codemod ./**/*.ts --parser=ts
 ```
 
 The CLI is the same as in [jscodeshift](https://github.com/facebook/jscodeshift)
@@ -58,7 +64,7 @@ except you can omit the transform file.
 
 Alternatively, you can run the codemod using jscodeshift as follows:
 
-```
+```bash
 $ yarn global add jscodeshift
 $ yarn add optional-chaining-codemod
 $ jscodeshift -t node_modules/optional-chaining-codemod/transform.js ./**/*.js
@@ -71,7 +77,7 @@ This codemod has two flags:
 2. `--skipTemplateStrings` to skip template strings passed to lodash `get`
 
 Especially the first case is risky as the variable might actually be something
-like `var bar = "a.b.c"` but produce `_.get(foo, bar) => foo?[bar]`.
+like `var bar = "a.b.c"` and produce from `_.get(foo, bar)` following: `foo?[bar]` although lodash would treat it like `foo?.a?.b?.c"`.
 
 
 ## Contributing
