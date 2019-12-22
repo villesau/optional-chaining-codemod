@@ -257,11 +257,22 @@ const dive = (node, compare, j) => {
 };
 
 const logicalExpressionToOptionalChain = (node, j) => {
-  const left = node.value.left;
-  const expression = dive(node.value.right, left, j);
-  if (expression.type === "OptionalMemberExpression") {
-    node.replace(expression);
+  const right = node.value.right;
+  if (node.value.left.type === "LogicalExpression") {
+    const left = node.value.left.right;
+    const expression = dive(right, left, j);
+    if (expression.type === "OptionalMemberExpression") {
+      node.get("right").replace(expression);
+      node.get("left").replace(node.value.left.left);
+    }
+  } else {
+    const left = node.value.left;
+    const expression = dive(right, left, j);
+    if (expression.type === "OptionalMemberExpression") {
+      node.replace(expression);
+    }
   }
+
   if (
     node.parent.value.type === "LogicalExpression" &&
     node.parent.value.operator === "&&" &&
