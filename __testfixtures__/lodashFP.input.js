@@ -1,0 +1,20 @@
+// @flow
+import _ from 'lodash/fp';
+import { get } from 'lodash/fp';
+const foo1 = _.get(bar, 'a.b.c');
+const foo2 = get(bar, 'a.b.c');
+const foo3 = get(bar, 'a.b.c');
+const foo4 = get(bar, 'a[2].c');
+const foo5 = get(bar, ['a', foo5, 'c']);
+const foo6 = get(bar, ['a', 321, 'c']);
+const foo7 = get(bar, ['a', this.smthng, 'c']);
+const foo8 = get(bar, ['a', foo5, 'c'], 123);
+const foo9 = get(bar, ['a', foo5, 'c'], 'what');
+const foo10 = get(bar, ['a', foo5, 'c'], barr);
+const foo11 = _.get(bar, `a.${foo5}`);
+const foo12 = _.get(bar, `a.${foo5}.smthng`);
+const foo13 = _.get(bar, someKey);
+const foo14 = _.get(that.foo, that.bar);
+const foo15 = get(foo, 'bar[0]["60"]');
+const foo16 = get(foo, 'bar.data-thing');
+const foo17 = get(foo, 'data-bar[0].baz.data-thing', value);
