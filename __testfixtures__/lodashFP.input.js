@@ -1,5 +1,5 @@
 // @flow
-import _ from "lodash";
+import _ from "lodash/fp";
 import { get } from "lodash/fp";
 import gett from "lodash/fp/get";
 const foo1  = _.get("a.b.c", bar);

@@ -109,6 +109,13 @@ const mangleLodashGets = (ast, j, options, importLiteral = "lodash") => {
   // Save the comments attached to the first node
   const firstNode = getFirstNode();
   const { comments } = firstNode;
+  const swapArguments = (node, options) => {
+    if (importLiteral === "lodash/fp") {
+      const [object, path] = node.value.arguments;
+      node.value.arguments = [path, object];
+    }
+      return node;
+  };
   const getImportSpecifier = ast
     .find("ImportDeclaration", { source: { type: "Literal", value: importLiteral } })
     .find("ImportSpecifier", { imported: { name: "get" } });
@@ -119,7 +126,7 @@ const mangleLodashGets = (ast, j, options, importLiteral = "lodash") => {
       .replaceWith(node =>
         skip(node, options)
           ? node.get().value
-          : replaceGetWithOptionalChain(node, j)
+          : replaceGetWithOptionalChain(swapArguments(node), j)
       );
     if (
       ast.find("CallExpression", { callee: { name: getName } }).length === 0
@@ -133,7 +140,7 @@ const mangleLodashGets = (ast, j, options, importLiteral = "lodash") => {
   }
 
   const getScopedImport = ast.find("ImportDeclaration", {
-    source: { type: "Literal", value: "lodash/get" }
+    source: { type: "Literal", value: `${importLiteral}/get` }
   });
 
   const getScopedSpecifier = getScopedImport
@@ -147,7 +154,7 @@ const mangleLodashGets = (ast, j, options, importLiteral = "lodash") => {
       .replaceWith(node =>
         skip(node, options)
           ? node.get().value
-          : replaceGetWithOptionalChain(node, j)
+          : replaceGetWithOptionalChain(swapArguments(node), j)
       );
     if (
       ast.find("CallExpression", { callee: { name: getScopedName } }).length ===
@@ -172,7 +179,7 @@ const mangleLodashGets = (ast, j, options, importLiteral = "lodash") => {
       .replaceWith(node =>
         skip(node, options)
           ? node.get().value
-          : replaceGetWithOptionalChain(node, j)
+          : replaceGetWithOptionalChain(swapArguments(node), j)
       );
     const lodashIdentifiers = ast.find("Identifier", {
       name: lodashDefaultImportName
