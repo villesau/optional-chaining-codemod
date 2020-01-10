@@ -40,4 +40,8 @@ describe("lodash get to optional chaining", () => {
   describe("mangle nested object checks", () => {
     defineTest(__dirname, "transform", null, "nestedObjects");
   });
+
+  describe("import from lodash/fp", () => {
+    defineTest(__dirname, "transform", null, "lodashFP")
+  });
 });
