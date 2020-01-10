@@ -102,10 +102,16 @@ const addWithNullishCoalescing = (node, j) =>
     node.value.arguments[2]
   );
 
-const replaceGetWithOptionalChain = (node, j) =>
+const swapArguments = (node, options) => {
+  const [object, path] = node.value.arguments;
+  node.value.arguments = [path, object];
+  return node;
+};
+
+const replaceGetWithOptionalChain = (node, j, shouldSwapArgs) =>
   node.value.arguments[2]
     ? addWithNullishCoalescing(node, j)
-    : generateOptionalChain(node, j);
+    : generateOptionalChain(shouldSwapArgs ? swapArguments(node) : node, j);
 
 const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash") => {
   const literal = isTypescript ? "StringLiteral" : "Literal";
@@ -114,13 +120,8 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
   // Save the comments attached to the first node
   const firstNode = getFirstNode();
   const { comments } = firstNode;
-  const swapArguments = (node, options) => {
-    if (importLiteral === "lodash/fp") {
-      const [object, path] = node.value.arguments;
-      node.value.arguments = [path, object];
-    }
-      return node;
-  };
+  const shouldSwapArgs = importLiteral === "lodash/fp";
+
   const getImportSpecifier = ast
     .find("ImportDeclaration", { source: { type: literal, value: importLiteral } })
     .find("ImportSpecifier", { imported: { name: "get" } });
@@ -131,7 +132,7 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
       .replaceWith(node =>
         skip(node, options, isTypescript)
           ? node.get().value
-          : replaceGetWithOptionalChain(swapArguments(node), j)
+          : replaceGetWithOptionalChain(node, j, shouldSwapArgs)
       );
     if (
       ast.find("CallExpression", { callee: { name: getName } }).length === 0
@@ -159,7 +160,7 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
       .replaceWith(node =>
         skip(node, options)
           ? node.get().value
-          : replaceGetWithOptionalChain(swapArguments(node), j)
+          : replaceGetWithOptionalChain(node, j, shouldSwapArgs)
       );
     if (
       ast.find("CallExpression", { callee: { name: getScopedName } }).length ===
@@ -184,7 +185,7 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
       .replaceWith(node =>
         skip(node, options)
           ? node.get().value
-          : replaceGetWithOptionalChain(swapArguments(node), j)
+          : replaceGetWithOptionalChain(node, j, shouldSwapArgs)
       );
     const lodashIdentifiers = ast.find("Identifier", {
       name: lodashDefaultImportName
