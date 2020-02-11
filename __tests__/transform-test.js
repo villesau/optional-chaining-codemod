@@ -24,6 +24,17 @@ describe("lodash get to optional chaining", () => {
         "skipVariables"
       );
     });
+
+    describe("typescript", () => {
+      defineTest(
+        __dirname,
+        "transform",
+        null,
+        "typescript",
+        { parser: 'ts' },
+        { parser: 'ts' },
+      );
+    });
   });
 
   describe("mangle nested object checks", () => {

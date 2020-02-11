@@ -6,12 +6,12 @@ const replaceArrayWithOptionalChain = (node, j) =>
     (p, c) =>
       j.optionalMemberExpression(
         p,
-        c.type === "Literal"
+        ["Literal", "StringLiteral"].includes(c.type)
           ? isNaN(c.value)
             ? j.identifier(c.value)
             : j.literal(parseInt(c.value))
           : c,
-        c.type !== "Literal" || !isNaN(c.value)
+        !["Literal", "StringLiteral"].includes(c.type) || !isNaN(c.value)
       ),
     node.value.arguments[0]
   );
@@ -62,6 +62,7 @@ const generateOptionalChain = (node, j) => {
       return replaceArrayWithOptionalChain(node, j);
     case "TemplateLiteral":
       return replaceTemplateLiteralWithOptionalChain(node, j);
+    case "StringLiteral":
     case "Literal":
       return replaceStringWithOptionalChain(
         node.value.arguments[1].value,
@@ -73,13 +74,14 @@ const generateOptionalChain = (node, j) => {
     case "MemberExpression":
       return defaultOptionalChain(node, j);
     default:
-      throw new Error("argument type not supported");
+      throw new Error(`argument type not supported "${node.value.arguments[1].type}"`);
   }
 };
 
 const skip = (node, options) => {
   switch (node.value.arguments[1].type) {
     case "ArrayExpression":
+    case "StringLiteral":
     case "Literal":
       return false;
     case "TemplateLiteral":
@@ -88,7 +90,7 @@ const skip = (node, options) => {
     case "MemberExpression":
       return !!options.skipVariables;
     default:
-      throw new Error("argument type not supported");
+      throw new Error(`argument type not supported "${node.value.arguments[1].type}"`);
   }
 };
 
@@ -104,20 +106,22 @@ const replaceGetWithOptionalChain = (node, j) =>
     ? addWithNullishCoalescing(node, j)
     : generateOptionalChain(node, j);
 
-const mangleLodashGets = (ast, j, options) => {
+const mangleLodashGets = (ast, j, options, isTypescript) => {
+  const Literal = isTypescript ? "StringLiteral" : "Literal";
+
   const getFirstNode = () => ast.find(j.Program).get("body", 0).node;
   // Save the comments attached to the first node
   const firstNode = getFirstNode();
   const { comments } = firstNode;
   const getImportSpecifier = ast
-    .find("ImportDeclaration", { source: { type: "Literal", value: "lodash" } })
+    .find("ImportDeclaration", { source: { type: Literal, value: "lodash" } })
     .find("ImportSpecifier", { imported: { name: "get" } });
   if (getImportSpecifier.length) {
     const getName = getImportSpecifier.get().value.local.name;
     ast
       .find("CallExpression", { callee: { name: getName } })
       .replaceWith(node =>
-        skip(node, options)
+        skip(node, options, isTypescript)
           ? node.get().value
           : replaceGetWithOptionalChain(node, j)
       );
@@ -133,7 +137,7 @@ const mangleLodashGets = (ast, j, options) => {
   }
 
   const getScopedImport = ast.find("ImportDeclaration", {
-    source: { type: "Literal", value: "lodash/get" }
+    source: { type: Literal, value: "lodash/get" }
   });
 
   const getScopedSpecifier = getScopedImport
@@ -157,7 +161,7 @@ const mangleLodashGets = (ast, j, options) => {
     }
   }
   const getDefaultSpecifier = ast
-    .find("ImportDeclaration", { source: { type: "Literal", value: "lodash" } })
+    .find("ImportDeclaration", { source: { type: Literal, value: "lodash" } })
     .find("ImportDefaultSpecifier")
     .find("Identifier");
   if (getDefaultSpecifier.length) {
@@ -182,7 +186,7 @@ const mangleLodashGets = (ast, j, options) => {
       lodashIdentifiers.get().parent.value.type === "ImportDefaultSpecifier"
     ) {
       const importDeclaration = ast.find("ImportDeclaration", {
-        source: { type: "Literal", value: "lodash" },
+        source: { type: Literal, value: "lodash" },
         specifiers: [
           {
             type: "ImportDefaultSpecifier",
@@ -279,9 +283,11 @@ const mangleNestedObjects = (ast, j, options) => {
 };
 
 module.exports = function(fileInfo, api, options) {
+  const isTypescript = /.tsx?$/.test(fileInfo.path);
+
   const j = api.jscodeshift;
   const ast = j(fileInfo.source);
-  mangleNestedObjects(ast, j, options);
-  mangleLodashGets(ast, j, options);
+  mangleNestedObjects(ast, j, options, isTypescript);
+  mangleLodashGets(ast, j, options, isTypescript);
   return ast.toSource();
 };
