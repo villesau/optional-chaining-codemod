@@ -16,3 +16,4 @@ const foo14 = that.foo?.[that.bar];
 const foo15 = foo?.bar?.[0]?.[60];
 const foo16 = foo?.bar?.["data-thing"];
 const foo17 = foo?.["data-bar"]?.[0]?.baz?.["data-thing"] ?? value;
+const foo18 = foo?.[getPath(name)];

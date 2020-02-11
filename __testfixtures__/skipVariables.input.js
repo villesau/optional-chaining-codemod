@@ -9,3 +9,4 @@ const foo4 = gett(bar, someVar);
 const foo5 = get(bar, someVar);
 const foo6 = _.get(bar, someKey);
 const foo7 = _.get(that.foo, that.bar);
+const foo8 = get(foo, getPath(name));

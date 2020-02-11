@@ -19,3 +19,4 @@ const foo14 = _.get(that.foo, that.bar);
 const foo15 = get(foo, 'bar[0]["60"]');
 const foo16 = get(foo, "bar.data-thing");
 const foo17 = get(foo, "data-bar[0].baz.data-thing", value);
+const foo18 = get(foo, getPath(name));

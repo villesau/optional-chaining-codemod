@@ -70,8 +70,8 @@ const generateOptionalChain = (node, j) => {
         j
       );
     case "Identifier":
-      return defaultOptionalChain(node, j);
     case "MemberExpression":
+    case "CallExpression":
       return defaultOptionalChain(node, j);
     default:
       throw new Error(`argument type not supported "${node.value.arguments[1].type}"`);
@@ -88,6 +88,7 @@ const skip = (node, options) => {
       return !!options.skipTemplateStrings;
     case "Identifier":
     case "MemberExpression":
+    case "CallExpression":
       return !!options.skipVariables;
     default:
       throw new Error(`argument type not supported "${node.value.arguments[1].type}"`);
