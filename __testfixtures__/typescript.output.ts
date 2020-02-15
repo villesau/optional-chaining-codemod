@@ -1,4 +1,3 @@
-// @flow
 const foo1  = bar?.a?.b?.c;
 const foo2  = bar?.a?.b?.c;
 const foo3  = bar?.a?.b?.c;

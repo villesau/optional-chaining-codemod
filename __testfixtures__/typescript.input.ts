@@ -1,7 +1,7 @@
-// @flow
 import _ from "lodash";
 import { get } from "lodash";
 import gett from "lodash/get";
+
 const foo1  = _.get(bar, "a.b.c");
 const foo2  = get(bar, "a.b.c");
 const foo3  = gett(bar, "a.b.c");
@@ -20,3 +20,4 @@ const foo15 = get(foo, 'bar[0]["60"]');
 const foo16 = get(foo, "bar.data-thing");
 const foo17 = get(foo, "data-bar[0].baz.data-thing", value);
 const foo18 = get(foo, getPath(name));
+
