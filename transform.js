@@ -108,14 +108,14 @@ const replaceGetWithOptionalChain = (node, j) =>
     : generateOptionalChain(node, j);
 
 const mangleLodashGets = (ast, j, options, isTypescript) => {
-  const Literal = isTypescript ? "StringLiteral" : "Literal";
+  const literal = isTypescript ? "StringLiteral" : "Literal";
 
   const getFirstNode = () => ast.find(j.Program).get("body", 0).node;
   // Save the comments attached to the first node
   const firstNode = getFirstNode();
   const { comments } = firstNode;
   const getImportSpecifier = ast
-    .find("ImportDeclaration", { source: { type: Literal, value: "lodash" } })
+    .find("ImportDeclaration", { source: { type: literal, value: "lodash" } })
     .find("ImportSpecifier", { imported: { name: "get" } });
   if (getImportSpecifier.length) {
     const getName = getImportSpecifier.get().value.local.name;
@@ -138,7 +138,7 @@ const mangleLodashGets = (ast, j, options, isTypescript) => {
   }
 
   const getScopedImport = ast.find("ImportDeclaration", {
-    source: { type: Literal, value: "lodash/get" }
+    source: { type: literal, value: "lodash/get" }
   });
 
   const getScopedSpecifier = getScopedImport
@@ -162,7 +162,7 @@ const mangleLodashGets = (ast, j, options, isTypescript) => {
     }
   }
   const getDefaultSpecifier = ast
-    .find("ImportDeclaration", { source: { type: Literal, value: "lodash" } })
+    .find("ImportDeclaration", { source: { type: literal, value: "lodash" } })
     .find("ImportDefaultSpecifier")
     .find("Identifier");
   if (getDefaultSpecifier.length) {
@@ -187,7 +187,7 @@ const mangleLodashGets = (ast, j, options, isTypescript) => {
       lodashIdentifiers.get().parent.value.type === "ImportDefaultSpecifier"
     ) {
       const importDeclaration = ast.find("ImportDeclaration", {
-        source: { type: Literal, value: "lodash" },
+        source: { type: literal, value: "lodash" },
         specifiers: [
           {
             type: "ImportDefaultSpecifier",
