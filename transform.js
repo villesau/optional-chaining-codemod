@@ -7,11 +7,13 @@ const replaceArrayWithOptionalChain = (node, j) =>
       j.optionalMemberExpression(
         p,
         ["Literal", "StringLiteral"].includes(c.type)
-          ? isNaN(c.value)
+          ? isNaN(c.value) && isValidIdentifier(c.value)
             ? j.identifier(c.value)
-            : j.literal(parseInt(c.value))
+              : isValidIdentifier(c.value)
+              ? j.literal(parseInt(c.value))
+            : j.literal(c.value)
           : c,
-        !["Literal", "StringLiteral"].includes(c.type) || !isNaN(c.value)
+        !["Literal", "StringLiteral"].includes(c.type) || !isNaN(c.value) || !isValidIdentifier(c.value)
       ),
     node.value.arguments[0]
   );
