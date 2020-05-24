@@ -171,12 +171,8 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
       getScopedImport.remove();
     }
   }
-  const getDefaultSpecifier = ast
-    .find("ImportDeclaration", { source: { type: literal, value: importLiteral } })
-    .find("ImportDefaultSpecifier")
-    .find("Identifier");
-  if (getDefaultSpecifier.length) {
-    const lodashDefaultImportName = getDefaultSpecifier.get().node.name;
+
+  function rewriteBlanketImports(lodashDefaultImportName) {
     ast
       .find("CallExpression", {
         callee: {
@@ -189,18 +185,21 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
           ? node.get().value
           : replaceGetWithOptionalChain(node, j, shouldSwapArgs)
       );
+  }
+
+  function deleteBlanketIfOnlyUse(lodashDefaultImportName, type) {
     const lodashIdentifiers = ast.find("Identifier", {
       name: lodashDefaultImportName
     });
     if (
       lodashIdentifiers.length === 1 &&
-      lodashIdentifiers.get().parent.value.type === "ImportDefaultSpecifier"
+      lodashIdentifiers.get().parent.value.type === type
     ) {
       const importDeclaration = ast.find("ImportDeclaration", {
         source: { type: literal, value: importLiteral },
         specifiers: [
           {
-            type: "ImportDefaultSpecifier",
+            type: type,
             local: { name: lodashDefaultImportName }
           }
         ]
@@ -210,6 +209,30 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
       }
     }
   }
+
+  const baseDeclarations = ast
+    .find("ImportDeclaration", { source: { type: literal, value: importLiteral } });
+
+  const getDefaultSpecifier = baseDeclarations
+    .find("ImportDefaultSpecifier")
+    .find("Identifier");
+
+  if (getDefaultSpecifier.length) {
+    const foundName = getDefaultSpecifier.get().node.name;
+    rewriteBlanketImports(foundName);
+    deleteBlanketIfOnlyUse(foundName, "ImportDefaultSpecifier");
+  }
+
+  const getNamespaceSpecifier = baseDeclarations
+    .find("ImportNamespaceSpecifier")
+    .find('Identifier');
+
+  if (getNamespaceSpecifier.length) {
+    const foundName = getNamespaceSpecifier.get().node.name;
+    rewriteBlanketImports(foundName);
+    deleteBlanketIfOnlyUse(foundName, "ImportNamespaceSpecifier");
+  }
+
   const firstNode2 = getFirstNode();
   if (firstNode2 !== firstNode) {
     firstNode2.comments = comments;
