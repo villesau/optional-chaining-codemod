@@ -171,12 +171,18 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
       getScopedImport.remove();
     }
   }
-  const getDefaultSpecifier = ast
-    .find("ImportDeclaration", { source: { type: literal, value: importLiteral } })
-    .find("ImportDefaultSpecifier")
-    .find("Identifier");
-  if (getDefaultSpecifier.length) {
-    const lodashDefaultImportName = getDefaultSpecifier.get().node.name;
+
+  function rewriteBlanketImports(baseDeclarations, type) {
+    const specifierIdentifier = baseDeclarations
+      .find(type)
+      .find("Identifier");
+
+    if (!specifierIdentifier.length) {
+      return;
+    }
+
+    const lodashDefaultImportName = specifierIdentifier.get().node.name;
+
     ast
       .find("CallExpression", {
         callee: {
@@ -189,18 +195,19 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
           ? node.get().value
           : replaceGetWithOptionalChain(node, j, shouldSwapArgs)
       );
+
     const lodashIdentifiers = ast.find("Identifier", {
       name: lodashDefaultImportName
     });
     if (
       lodashIdentifiers.length === 1 &&
-      lodashIdentifiers.get().parent.value.type === "ImportDefaultSpecifier"
+      lodashIdentifiers.get().parent.value.type === type
     ) {
       const importDeclaration = ast.find("ImportDeclaration", {
         source: { type: literal, value: importLiteral },
         specifiers: [
           {
-            type: "ImportDefaultSpecifier",
+            type: type,
             local: { name: lodashDefaultImportName }
           }
         ]
@@ -210,6 +217,13 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
       }
     }
   }
+
+  const baseDeclarations = ast
+    .find("ImportDeclaration", { source: { type: literal, value: importLiteral } });
+
+  rewriteBlanketImports(baseDeclarations, "ImportDefaultSpecifier");
+  rewriteBlanketImports(baseDeclarations, "ImportNamespaceSpecifier");
+
   const firstNode2 = getFirstNode();
   if (firstNode2 !== firstNode) {
     firstNode2.comments = comments;

@@ -1,4 +1,5 @@
 import _ from "lodash";
+import * as star from "lodash";
 import { get } from "lodash";
 import gett from "lodash/get";
 
@@ -20,4 +21,5 @@ const foo15 = get(foo, 'bar[0]["60"]');
 const foo16 = get(foo, "bar.data-thing");
 const foo17 = get(foo, "data-bar[0].baz.data-thing", value);
 const foo18 = get(foo, getPath(name));
+const foo19 = star.get(bar, "a.b.c");
 
