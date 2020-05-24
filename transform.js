@@ -172,7 +172,17 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
     }
   }
 
-  function rewriteBlanketImports(lodashDefaultImportName) {
+  function rewriteBlanketImports(baseDeclarations, type) {
+    const specifierIdentifier = baseDeclarations
+      .find(type)
+      .find("Identifier");
+
+    if (!specifierIdentifier.length) {
+      return;
+    }
+
+    const lodashDefaultImportName = specifierIdentifier.get().node.name;
+
     ast
       .find("CallExpression", {
         callee: {
@@ -185,9 +195,7 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
           ? node.get().value
           : replaceGetWithOptionalChain(node, j, shouldSwapArgs)
       );
-  }
 
-  function deleteBlanketIfOnlyUse(lodashDefaultImportName, type) {
     const lodashIdentifiers = ast.find("Identifier", {
       name: lodashDefaultImportName
     });
@@ -213,25 +221,8 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
   const baseDeclarations = ast
     .find("ImportDeclaration", { source: { type: literal, value: importLiteral } });
 
-  const getDefaultSpecifier = baseDeclarations
-    .find("ImportDefaultSpecifier")
-    .find("Identifier");
-
-  if (getDefaultSpecifier.length) {
-    const foundName = getDefaultSpecifier.get().node.name;
-    rewriteBlanketImports(foundName);
-    deleteBlanketIfOnlyUse(foundName, "ImportDefaultSpecifier");
-  }
-
-  const getNamespaceSpecifier = baseDeclarations
-    .find("ImportNamespaceSpecifier")
-    .find('Identifier');
-
-  if (getNamespaceSpecifier.length) {
-    const foundName = getNamespaceSpecifier.get().node.name;
-    rewriteBlanketImports(foundName);
-    deleteBlanketIfOnlyUse(foundName, "ImportNamespaceSpecifier");
-  }
+  rewriteBlanketImports(baseDeclarations, "ImportDefaultSpecifier");
+  rewriteBlanketImports(baseDeclarations, "ImportNamespaceSpecifier");
 
   const firstNode2 = getFirstNode();
   if (firstNode2 !== firstNode) {
