@@ -14,3 +14,7 @@ const foo12 = that.foo?.[that.bar] ?? {};
 const foo13 = foo?.bar?.[0]?.[60] ?? [];
 const foo14 = foo?.bar?.["data-thing"] ?? {};
 const foo15 = foo?.["data-bar"]?.[0]?.baz?.["data-thing"] ?? "test";
+const foo16 = foo?.[0] ?? "works";
+const foo17 = foo?.[0] ?? "works";
+const foo18 = foo?.[1] ?? "works";
+const foo19 = foo?.[1] ?? "works";

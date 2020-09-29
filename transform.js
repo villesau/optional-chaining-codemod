@@ -20,7 +20,7 @@ const replaceArrayWithOptionalChain = (node, j) =>
 
 const replaceStringWithOptionalChain = (str, startNode, j) =>
   lodashObjectPathParser(str)
-    .filter(Boolean)
+    .filter((v) => v !== '')
     .reduce((p, c) => {
       return j.optionalMemberExpression(
         p,

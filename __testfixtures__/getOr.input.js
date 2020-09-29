@@ -17,3 +17,7 @@ const foo12 = _.getOr({}, that.bar, that.foo);
 const foo13 = getOr([], 'bar[0]["60"]', foo);
 const foo14 = getOr({}, "bar.data-thing", foo);
 const foo15 = getOr("test", "data-bar[0].baz.data-thing", foo);
+const foo16 = getOr("works", 0, foo);
+const foo17 = getOr("works", [0], foo);
+const foo18 = getOr("works", 1, foo);
+const foo19 = getOr("works", [1], foo);
