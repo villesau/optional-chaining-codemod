@@ -104,18 +104,27 @@ const addWithNullishCoalescing = (node, j) =>
     node.value.arguments[2]
   );
 
-const swapArguments = (node, options) => {
-  const [object, path] = node.value.arguments;
-  node.value.arguments = [path, object];
+const swapArguments = (node, hasDefault) => {
+  if (hasDefault) {
+    const [default_, path, object] = node.value.arguments;
+    node.value.arguments = [object, path, default_];
+  } else {
+    const [path, object] = node.value.arguments;
+    node.value.arguments = [object, path];
+  }
   return node;
 };
 
-const replaceGetWithOptionalChain = (node, j, shouldSwapArgs) =>
-  node.value.arguments[2]
+const replaceGetWithOptionalChain = (node, j, shouldSwapArgs) => {
+  if (shouldSwapArgs) {
+      node = swapArguments(node, !!node.value.arguments[2]);
+  }
+  return node.value.arguments[2]
     ? addWithNullishCoalescing(node, j)
-    : generateOptionalChain(shouldSwapArgs ? swapArguments(node) : node, j);
+    : generateOptionalChain(node, j);
+}
 
-const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash") => {
+const mangleLodashGets = (ast, j, options, isTypescript, isGetOr, importLiteral = "lodash") => {
   const literal = isTypescript ? "StringLiteral" : "Literal";
 
   const getFirstNode = () => ast.find(j.Program).get("body", 0).node;
@@ -123,10 +132,11 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
   const firstNode = getFirstNode();
   const { comments } = firstNode;
   const shouldSwapArgs = importLiteral === "lodash/fp";
+  const funcName = isGetOr ? "getOr" : "get";
 
   const getImportSpecifier = ast
     .find("ImportDeclaration", { source: { type: literal, value: importLiteral } })
-    .find("ImportSpecifier", { imported: { name: "get" } });
+    .find("ImportSpecifier", { imported: { name: funcName } });
   if (getImportSpecifier.length) {
     const getName = getImportSpecifier.get().value.local.name;
     ast
@@ -148,7 +158,7 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
   }
 
   const getScopedImport = ast.find("ImportDeclaration", {
-    source: { type: literal, value: `${importLiteral}/get` }
+    source: { type: literal, value: `${importLiteral}/${funcName}` }
   });
 
   const getScopedSpecifier = getScopedImport
@@ -181,7 +191,7 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
       .find("CallExpression", {
         callee: {
           object: { name: lodashDefaultImportName },
-          property: { name: "get" }
+          property: { name: funcName }
         }
       })
       .replaceWith(node =>
@@ -310,7 +320,8 @@ module.exports = function(fileInfo, api, options) {
   const j = api.jscodeshift;
   const ast = j(fileInfo.source);
   mangleNestedObjects(ast, j, options, isTypescript);
-  mangleLodashGets(ast, j, options, isTypescript);
-  mangleLodashGets(ast, j, options, isTypescript, "lodash/fp");
+  mangleLodashGets(ast, j, options, isTypescript, false);
+  mangleLodashGets(ast, j, options, isTypescript, false, "lodash/fp");
+  mangleLodashGets(ast, j, options, isTypescript, true, "lodash/fp");
   return ast.toSource();
 };

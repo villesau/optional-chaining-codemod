@@ -44,4 +44,8 @@ describe("lodash get to optional chaining", () => {
   describe("import from lodash/fp", () => {
     defineTest(__dirname, "transform", null, "lodashFP")
   });
+
+  describe("import from getOr", () => {
+    defineTest(__dirname, "transform", null, "getOr")
+  });
 });
