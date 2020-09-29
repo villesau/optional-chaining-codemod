@@ -80,8 +80,9 @@ const generateOptionalChain = (node, j) => {
   }
 };
 
-const skip = (node, options) => {
-  switch (node.value.arguments[1].type) {
+const skip = (node, options, isGetOr, isFp) => {
+  const index = isFp ? (isGetOr ? 1 : 0) : 1;
+  switch (node.value.arguments[index].type) {
     case "ArrayExpression":
     case "StringLiteral":
     case "Literal":
@@ -93,7 +94,7 @@ const skip = (node, options) => {
     case "CallExpression":
       return !!options.skipVariables;
     default:
-      throw new Error(`argument type not supported "${node.value.arguments[1].type}"`);
+      throw new Error(`argument type not supported "${node.value.arguments[index].type}"`);
   }
 };
 
@@ -104,24 +105,44 @@ const addWithNullishCoalescing = (node, j) =>
     node.value.arguments[2]
   );
 
-const swapArguments = (node, hasDefault) => {
-  if (hasDefault) {
-    const [default_, path, object] = node.value.arguments;
-    node.value.arguments = [object, path, default_];
+const swapArguments = (node, j, isGetOr) => {
+  if (isGetOr) {
+    if (node.value.arguments[2]) {
+      const [default_, path, object] = node.value.arguments;
+      node.value.arguments = [object, path, default_];
+    } else {
+      const [default_, path] = node.value.arguments;
+      node.value.arguments = [j.identifier("o"), path, default_];
+      node.value.curried = true;
+    }
   } else {
-    const [path, object] = node.value.arguments;
-    node.value.arguments = [object, path];
+    if (node.value.arguments[1]) {
+      const [path, object] = node.value.arguments;
+      node.value.arguments = [object, path];
+    } else {
+      const [path] = node.value.arguments;
+      node.value.arguments = [j.identifier("o"), path];
+      node.value.curried = true;
+    }
   }
   return node;
 };
 
-const replaceGetWithOptionalChain = (node, j, shouldSwapArgs) => {
-  if (shouldSwapArgs) {
-      node = swapArguments(node, !!node.value.arguments[2]);
+const doCurry = (node, j, body) => {
+  if (node.value && node.value.curried) {
+    return j.arrowFunctionExpression([{ type: "Identifier", name: "o" }], body);
   }
-  return node.value.arguments[2]
+
+  return body;
+};
+
+const replaceGetWithOptionalChain = (node, j, isGetOr, isFp) => {
+  if (isFp) {
+      node = swapArguments(node, j, isGetOr);
+  }
+  return doCurry(node, j, node.value.arguments[2]
     ? addWithNullishCoalescing(node, j)
-    : generateOptionalChain(node, j);
+    : generateOptionalChain(node, j));
 }
 
 const mangleLodashGets = (ast, j, options, isTypescript, isGetOr, importLiteral = "lodash") => {
@@ -131,7 +152,7 @@ const mangleLodashGets = (ast, j, options, isTypescript, isGetOr, importLiteral 
   // Save the comments attached to the first node
   const firstNode = getFirstNode();
   const { comments } = firstNode;
-  const shouldSwapArgs = importLiteral === "lodash/fp";
+  const isFp = importLiteral === "lodash/fp";
   const funcName = isGetOr ? "getOr" : "get";
 
   const getImportSpecifier = ast
@@ -142,9 +163,9 @@ const mangleLodashGets = (ast, j, options, isTypescript, isGetOr, importLiteral 
     ast
       .find("CallExpression", { callee: { name: getName } })
       .replaceWith(node =>
-        skip(node, options, isTypescript)
+        skip(node, options, isGetOr, isFp)
           ? node.get().value
-          : replaceGetWithOptionalChain(node, j, shouldSwapArgs)
+          : replaceGetWithOptionalChain(node, j, isGetOr, isFp)
       );
     if (
       ast.find("CallExpression", { callee: { name: getName } }).length === 0
@@ -170,9 +191,9 @@ const mangleLodashGets = (ast, j, options, isTypescript, isGetOr, importLiteral 
     ast
       .find("CallExpression", { callee: { name: getScopedName } })
       .replaceWith(node =>
-        skip(node, options)
+        skip(node, options, isGetOr, isFp)
           ? node.get().value
-          : replaceGetWithOptionalChain(node, j, shouldSwapArgs)
+          : replaceGetWithOptionalChain(node, j, isGetOr, isFp)
       );
     if (
       ast.find("CallExpression", { callee: { name: getScopedName } }).length ===
@@ -195,9 +216,9 @@ const mangleLodashGets = (ast, j, options, isTypescript, isGetOr, importLiteral 
         }
       })
       .replaceWith(node =>
-        skip(node, options)
+        skip(node, options, isGetOr, isFp)
           ? node.get().value
-          : replaceGetWithOptionalChain(node, j, shouldSwapArgs)
+          : replaceGetWithOptionalChain(node, j, isGetOr, isFp)
       );
     const lodashIdentifiers = ast.find("Identifier", {
       name: lodashDefaultImportName

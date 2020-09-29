@@ -45,7 +45,15 @@ describe("lodash get to optional chaining", () => {
     defineTest(__dirname, "transform", null, "lodashFP")
   });
 
+  describe("import from lodash/fp curried", () => {
+    defineTest(__dirname, "transform", null, "lodashFPCurried")
+  });
+
   describe("import from getOr", () => {
     defineTest(__dirname, "transform", null, "getOr")
+  });
+
+  describe("import from getOr curried", () => {
+    defineTest(__dirname, "transform", null, "getOrCurried")
   });
 });
