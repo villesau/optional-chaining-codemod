@@ -21,3 +21,7 @@ const foo16 = get(foo, "bar.data-thing");
 const foo17 = get(foo, "data-bar[0].baz.data-thing", value);
 const foo18 = get(foo, getPath(name));
 const foo19 = get(foo, ["data-bar", 0, "baz", "data-thing"], value);
+const foo20 = get(foo, 0, value);
+const foo21 = get(foo, [0], value);
+const foo22 = get(foo, 1, value);
+const foo23 = get(foo, [1], value);

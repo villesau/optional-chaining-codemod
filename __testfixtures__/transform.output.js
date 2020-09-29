@@ -18,3 +18,7 @@ const foo16 = foo?.bar?.["data-thing"];
 const foo17 = foo?.["data-bar"]?.[0]?.baz?.["data-thing"] ?? value;
 const foo18 = foo?.[getPath(name)];
 const foo19 = foo?.["data-bar"]?.[0]?.baz?.["data-thing"] ?? value;
+const foo20 = foo?.[0] ?? value;
+const foo21 = foo?.[0] ?? value;
+const foo22 = foo?.[1] ?? value;
+const foo23 = foo?.[1] ?? value;

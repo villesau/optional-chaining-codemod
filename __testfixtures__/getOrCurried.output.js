@@ -1,0 +1,20 @@
+// @flow
+const foo1  = o => o?.a?.b?.c ?? 1;
+const foo2  = o => o?.a?.b?.c ?? 2;
+const foo3  = o => o?.a?.b?.c ?? 3;
+const foo4  = o => o?.a?.[2]?.c ?? 4;
+const foo5  = o => o?.a?.[foo5]?.c ?? 5;
+const foo6  = o => o?.a?.[321]?.c ?? 6;
+const foo7  = o => o?.a?.[this.smthng]?.c ?? 7;
+const foo8  = o => o?.a?.[foo5]?.c ?? 8;
+const foo9 = o => o?.a?.[foo5] ?? [];
+const foo10 = o => o?.a?.[foo5]?.smthng ?? {};
+const foo11 = o => o?.[someKey] ?? [];
+const foo12 = o => o?.[that.bar] ?? {};
+const foo13 = o => o?.bar?.[0]?.[60] ?? [];
+const foo14 = o => o?.bar?.["data-thing"] ?? {};
+const foo15 = o => o?.["data-bar"]?.[0]?.baz?.["data-thing"] ?? "test";
+const foo16 = o => o?.[0] ?? "works";
+const foo17 = o => o?.[0] ?? "works";
+const foo18 = o => o?.[1] ?? "works";
+const foo19 = o => o?.[1] ?? "works";
