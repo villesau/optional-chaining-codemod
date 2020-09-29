@@ -74,6 +74,10 @@ const generateOptionalChain = (node, j) => {
     case "Identifier":
     case "MemberExpression":
     case "CallExpression":
+    case "ObjectExpression":
+    case "BinaryExpression":
+    case "LogicalExpression":
+    case "OptionalMemberExpression":
       return defaultOptionalChain(node, j);
     default:
       throw new Error(`argument type not supported "${node.value.arguments[1].type}"`);
@@ -82,10 +86,16 @@ const generateOptionalChain = (node, j) => {
 
 const skip = (node, options, isGetOr, isFp) => {
   const index = isFp ? (isGetOr ? 1 : 0) : 1;
+  if (!node.value.arguments[index]) {
+    return true;
+  }
   switch (node.value.arguments[index].type) {
     case "ArrayExpression":
     case "StringLiteral":
     case "Literal":
+    case "BinaryExpression":
+    case "LogicalExpression":
+    case "OptionalMemberExpression":
       return false;
     case "TemplateLiteral":
       return !!options.skipTemplateStrings;
