@@ -74,6 +74,7 @@ const generateOptionalChain = (node, j) => {
     case "Identifier":
     case "MemberExpression":
     case "CallExpression":
+    case "BinaryExpression":
       return defaultOptionalChain(node, j);
     default:
       throw new Error(`argument type not supported "${node.value.arguments[1].type}"`);
@@ -91,6 +92,7 @@ const skip = (node, options) => {
     case "Identifier":
     case "MemberExpression":
     case "CallExpression":
+    case "BinaryExpression":
       return !!options.skipVariables;
     default:
       throw new Error(`argument type not supported "${node.value.arguments[1].type}"`);
