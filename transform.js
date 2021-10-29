@@ -20,7 +20,7 @@ const replaceArrayWithOptionalChain = (node, j) =>
 
 const replaceStringWithOptionalChain = (str, startNode, j) =>
   lodashObjectPathParser(str)
-    .filter(Boolean)
+    .filter((v) => v !== '')
     .reduce((p, c) => {
       return j.optionalMemberExpression(
         p,
@@ -74,17 +74,28 @@ const generateOptionalChain = (node, j) => {
     case "Identifier":
     case "MemberExpression":
     case "CallExpression":
+    case "ObjectExpression":
+    case "BinaryExpression":
+    case "LogicalExpression":
+    case "OptionalMemberExpression":
       return defaultOptionalChain(node, j);
     default:
       throw new Error(`argument type not supported "${node.value.arguments[1].type}"`);
   }
 };
 
-const skip = (node, options) => {
-  switch (node.value.arguments[1].type) {
+const skip = (node, options, isGetOr, isFp) => {
+  const index = isFp ? (isGetOr ? 1 : 0) : 1;
+  if (!node.value.arguments[index]) {
+    return true;
+  }
+  switch (node.value.arguments[index].type) {
     case "ArrayExpression":
     case "StringLiteral":
     case "Literal":
+    case "BinaryExpression":
+    case "LogicalExpression":
+    case "OptionalMemberExpression":
       return false;
     case "TemplateLiteral":
       return !!options.skipTemplateStrings;
@@ -93,7 +104,7 @@ const skip = (node, options) => {
     case "CallExpression":
       return !!options.skipVariables;
     default:
-      throw new Error(`argument type not supported "${node.value.arguments[1].type}"`);
+      throw new Error(`argument type not supported "${node.value.arguments[index].type}"`);
   }
 };
 
@@ -104,37 +115,67 @@ const addWithNullishCoalescing = (node, j) =>
     node.value.arguments[2]
   );
 
-const swapArguments = (node, options) => {
-  const [object, path] = node.value.arguments;
-  node.value.arguments = [path, object];
+const swapArguments = (node, j, isGetOr) => {
+  if (isGetOr) {
+    if (node.value.arguments[2]) {
+      const [default_, path, object] = node.value.arguments;
+      node.value.arguments = [object, path, default_];
+    } else {
+      const [default_, path] = node.value.arguments;
+      node.value.arguments = [j.identifier("o"), path, default_];
+      node.value.curried = true;
+    }
+  } else {
+    if (node.value.arguments[1]) {
+      const [path, object] = node.value.arguments;
+      node.value.arguments = [object, path];
+    } else {
+      const [path] = node.value.arguments;
+      node.value.arguments = [j.identifier("o"), path];
+      node.value.curried = true;
+    }
+  }
   return node;
 };
 
-const replaceGetWithOptionalChain = (node, j, shouldSwapArgs) =>
-  node.value.arguments[2]
-    ? addWithNullishCoalescing(node, j)
-    : generateOptionalChain(shouldSwapArgs ? swapArguments(node) : node, j);
+const doCurry = (node, j, body) => {
+  if (node.value && node.value.curried) {
+    return j.arrowFunctionExpression([{ type: "Identifier", name: "o" }], body);
+  }
 
-const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash") => {
+  return body;
+};
+
+const replaceGetWithOptionalChain = (node, j, isGetOr, isFp) => {
+  if (isFp) {
+      node = swapArguments(node, j, isGetOr);
+  }
+  return doCurry(node, j, node.value.arguments[2]
+    ? addWithNullishCoalescing(node, j)
+    : generateOptionalChain(node, j));
+}
+
+const mangleLodashGets = (ast, j, options, isTypescript, isGetOr, importLiteral = "lodash") => {
   const literal = isTypescript ? "StringLiteral" : "Literal";
 
   const getFirstNode = () => ast.find(j.Program).get("body", 0).node;
   // Save the comments attached to the first node
   const firstNode = getFirstNode();
   const { comments } = firstNode;
-  const shouldSwapArgs = importLiteral === "lodash/fp";
+  const isFp = importLiteral === "lodash/fp";
+  const funcName = isGetOr ? "getOr" : "get";
 
   const getImportSpecifier = ast
     .find("ImportDeclaration", { source: { type: literal, value: importLiteral } })
-    .find("ImportSpecifier", { imported: { name: "get" } });
+    .find("ImportSpecifier", { imported: { name: funcName } });
   if (getImportSpecifier.length) {
     const getName = getImportSpecifier.get().value.local.name;
     ast
       .find("CallExpression", { callee: { name: getName } })
       .replaceWith(node =>
-        skip(node, options, isTypescript)
+        skip(node, options, isGetOr, isFp)
           ? node.get().value
-          : replaceGetWithOptionalChain(node, j, shouldSwapArgs)
+          : replaceGetWithOptionalChain(node, j, isGetOr, isFp)
       );
     if (
       ast.find("CallExpression", { callee: { name: getName } }).length === 0
@@ -148,7 +189,7 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
   }
 
   const getScopedImport = ast.find("ImportDeclaration", {
-    source: { type: literal, value: `${importLiteral}/get` }
+    source: { type: literal, value: `${importLiteral}/${funcName}` }
   });
 
   const getScopedSpecifier = getScopedImport
@@ -160,9 +201,9 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
     ast
       .find("CallExpression", { callee: { name: getScopedName } })
       .replaceWith(node =>
-        skip(node, options)
+        skip(node, options, isGetOr, isFp)
           ? node.get().value
-          : replaceGetWithOptionalChain(node, j, shouldSwapArgs)
+          : replaceGetWithOptionalChain(node, j, isGetOr, isFp)
       );
     if (
       ast.find("CallExpression", { callee: { name: getScopedName } }).length ===
@@ -187,13 +228,13 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
       .find("CallExpression", {
         callee: {
           object: { name: lodashDefaultImportName },
-          property: { name: "get" }
+          property: { name: funcName }
         }
       })
       .replaceWith(node =>
-        skip(node, options)
+        skip(node, options, isGetOr, isFp)
           ? node.get().value
-          : replaceGetWithOptionalChain(node, j, shouldSwapArgs)
+          : replaceGetWithOptionalChain(node, j, isGetOr, isFp)
       );
 
     const lodashIdentifiers = ast.find("Identifier", {
@@ -324,7 +365,8 @@ module.exports = function(fileInfo, api, options) {
   const j = api.jscodeshift;
   const ast = j(fileInfo.source);
   mangleNestedObjects(ast, j, options, isTypescript);
-  mangleLodashGets(ast, j, options, isTypescript);
-  mangleLodashGets(ast, j, options, isTypescript, "lodash/fp");
+  mangleLodashGets(ast, j, options, isTypescript, false);
+  mangleLodashGets(ast, j, options, isTypescript, false, "lodash/fp");
+  mangleLodashGets(ast, j, options, isTypescript, true, "lodash/fp");
   return ast.toSource();
 };
