@@ -4,7 +4,7 @@
 [![npm version](https://badge.fury.io/js/optional-chaining-codemod.svg)](https://www.npmjs.com/package/optional-chaining-codemod)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/villesau/optional-chaining-codemod/blob/master/README.md#Contributing)
 
-This is a codemod to migrate different types of lodash `get` calls and `a && a.b` kind of 
+This is a codemod to migrate different types of lodash `get` calls and `a && a.b` kind of
 expressions to use [optional chaining](https://github.com/tc39/proposal-optional-chaining)
 and [nullish coalescing](https://github.com/tc39/proposal-nullish-coalescing) instead.
 
@@ -24,9 +24,9 @@ You can check out the [`__textfixtures__`](https://github.com/villesau/optional-
 
 ## Why should I migrate to use optional chaining?
 
-- When using static type checkers like [Flow](https://github.com/facebook/flow), 
-optional chaining provides much better type safety than lodash `get`. However, optional 
-chaining is not only Flow feature but you can use it with babel already today.
+- When using static type checkers like [Flow](https://github.com/facebook/flow) or Typescript,
+  optional chaining provides much better type safety than lodash `get`. Optional chaining is standard Javascript
+  feature.
 - It also has a neater syntax than chaining `&&` expressions one after another.
 
 ## Install
@@ -35,7 +35,7 @@ chaining is not only Flow feature but you can use it with babel already today.
 $ yarn global add optional-chaining-codemod
 ```
 
-or 
+or
 
 ```bash
 $ npm install -g optional-chaining-codemod
@@ -82,5 +82,5 @@ like `var bar = "a.b.c"` and produce from `_.get(foo, bar)` following: `foo?[bar
 
 ## Contributing
 
-Contributions are more than welcome! One area of improvement could be e.g 
+Contributions are more than welcome! One area of improvement could be e.g
 better CLI or finding out new areas to migrate to use optional chaining.
