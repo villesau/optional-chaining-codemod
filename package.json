@@ -25,14 +25,14 @@
   "homepage": "https://github.com/villesau/optional-chaining-codemod#readme",
   "scripts": {
     "test": "jest",
-    "prettier": "prettier ./**/*.js ./*.js !./__testfixtures__/** --write"
+    "prettier": "prettier ./**/*.js ./*.js --write"
   },
   "dependencies": {
-    "execa": "^3.4.0",
-    "jscodeshift": "^0.7.0"
+    "execa": "^5.1.1",
+    "jscodeshift": "^0.13.0"
   },
   "devDependencies": {
-    "jest": "^24.9.0",
-    "prettier": "^1.19.1"
+    "jest": "^27.4.5",
+    "prettier": "^2.5.1"
   }
 }

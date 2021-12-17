@@ -9,11 +9,13 @@ const replaceArrayWithOptionalChain = (node, j) =>
         ["Literal", "StringLiteral"].includes(c.type)
           ? isNaN(c.value) && isValidIdentifier(c.value)
             ? j.identifier(c.value)
-              : isValidIdentifier(c.value)
-              ? j.literal(parseInt(c.value))
+            : isValidIdentifier(c.value)
+            ? j.literal(parseInt(c.value))
             : j.literal(c.value)
           : c,
-        !["Literal", "StringLiteral"].includes(c.type) || !isNaN(c.value) || !isValidIdentifier(c.value)
+        !["Literal", "StringLiteral"].includes(c.type) ||
+          !isNaN(c.value) ||
+          !isValidIdentifier(c.value)
       ),
     node.value.arguments[0]
   );
@@ -77,7 +79,9 @@ const generateOptionalChain = (node, j) => {
     case "BinaryExpression":
       return defaultOptionalChain(node, j);
     default:
-      throw new Error(`argument type not supported "${node.value.arguments[1].type}"`);
+      throw new Error(
+        `argument type not supported "${node.value.arguments[1].type}"`
+      );
   }
 };
 
@@ -95,7 +99,9 @@ const skip = (node, options) => {
     case "BinaryExpression":
       return !!options.skipVariables;
     default:
-      throw new Error(`argument type not supported "${node.value.arguments[1].type}"`);
+      throw new Error(
+        `argument type not supported "${node.value.arguments[1].type}"`
+      );
   }
 };
 
@@ -117,7 +123,13 @@ const replaceGetWithOptionalChain = (node, j, shouldSwapArgs) =>
     ? addWithNullishCoalescing(node, j)
     : generateOptionalChain(shouldSwapArgs ? swapArguments(node) : node, j);
 
-const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash") => {
+const mangleLodashGets = (
+  ast,
+  j,
+  options,
+  isTypescript,
+  importLiteral = "lodash"
+) => {
   const literal = isTypescript ? "StringLiteral" : "Literal";
 
   const getFirstNode = () => ast.find(j.Program).get("body", 0).node;
@@ -127,7 +139,9 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
   const shouldSwapArgs = importLiteral === "lodash/fp";
 
   const getImportSpecifier = ast
-    .find("ImportDeclaration", { source: { type: literal, value: importLiteral } })
+    .find("ImportDeclaration", {
+      source: { type: literal, value: importLiteral }
+    })
     .find("ImportSpecifier", { imported: { name: "get" } });
   if (getImportSpecifier.length) {
     const getName = getImportSpecifier.get().value.local.name;
@@ -175,9 +189,7 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
   }
 
   function rewriteBlanketImports(baseDeclarations, type) {
-    const specifierIdentifier = baseDeclarations
-      .find(type)
-      .find("Identifier");
+    const specifierIdentifier = baseDeclarations.find(type).find("Identifier");
 
     if (!specifierIdentifier.length) {
       return;
@@ -220,8 +232,9 @@ const mangleLodashGets = (ast, j, options, isTypescript, importLiteral = "lodash
     }
   }
 
-  const baseDeclarations = ast
-    .find("ImportDeclaration", { source: { type: literal, value: importLiteral } });
+  const baseDeclarations = ast.find("ImportDeclaration", {
+    source: { type: literal, value: importLiteral }
+  });
 
   rewriteBlanketImports(baseDeclarations, "ImportDefaultSpecifier");
   rewriteBlanketImports(baseDeclarations, "ImportNamespaceSpecifier");
@@ -320,7 +333,7 @@ const mangleNestedObjects = (ast, j, options) => {
   return ast;
 };
 
-module.exports = function(fileInfo, api, options) {
+module.exports = function (fileInfo, api, options) {
   const isTypescript = /.tsx?$/.test(fileInfo.path);
 
   const j = api.jscodeshift;

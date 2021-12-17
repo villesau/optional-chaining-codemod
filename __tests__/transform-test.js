@@ -31,8 +31,8 @@ describe("lodash get to optional chaining", () => {
         "transform",
         null,
         "typescript",
-        { parser: 'ts' },
-        { parser: 'ts' },
+        { parser: "ts" },
+        { parser: "ts" }
       );
     });
   });
@@ -42,6 +42,6 @@ describe("lodash get to optional chaining", () => {
   });
 
   describe("import from lodash/fp", () => {
-    defineTest(__dirname, "transform", null, "lodashFP")
+    defineTest(__dirname, "transform", null, "lodashFP");
   });
 });
