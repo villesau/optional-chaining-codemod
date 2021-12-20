@@ -59,6 +59,12 @@ with typescript parser:
 $ optional-chaining-codemod ./**/*.ts --parser=ts
 ```
 
+with typescript+react parser:
+
+```bash
+$ optional-chaining-codemod ./**/*.tsx --parser=tsx
+```
+
 The CLI is the same as in [jscodeshift](https://github.com/facebook/jscodeshift)
 except you can omit the transform file.
 
