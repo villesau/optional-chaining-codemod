@@ -19,5 +19,6 @@ const foo18 = a && b.c?.d.e;
 this.a.b && this.b.c;
 this.a.b?.c;
 this.a?.b?.c;
+this?.a;
 x.a.b && this.a.b.c;
 this.a.b && x.a.b.c;
