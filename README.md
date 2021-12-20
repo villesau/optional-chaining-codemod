@@ -44,19 +44,19 @@ $ npm install -g optional-chaining-codemod
 ## Usage
 
 ```bash
-$ optional-chaining-codemod ./**/*.js
+$ optional-chaining-codemod ./**/*.js --ignore-pattern="**/node_modules/**"
 ```
 
 with flow parser:
 
 ```bash
-$ optional-chaining-codemod ./**/*.js --parser=flow
+$ optional-chaining-codemod ./**/*.js --ignore-pattern="**/node_modules/**" --parser=flow
 ```
 
 with typescript parser:
 
 ```bash
-$ optional-chaining-codemod ./**/*.ts --parser=ts
+$ optional-chaining-codemod ./**/*.ts --ignore-pattern="**/node_modules/**" --parser=ts
 ```
 
 with typescript+react parser:
@@ -73,7 +73,7 @@ Alternatively, you can run the codemod using jscodeshift as follows:
 ```bash
 $ yarn global add jscodeshift
 $ yarn add optional-chaining-codemod
-$ jscodeshift -t node_modules/optional-chaining-codemod/transform.js ./**/*.js
+$ jscodeshift -t node_modules/optional-chaining-codemod/transform.js --ignore-pattern="**/node_modules/**" ./**/*.js
 ```
 
 ### flags
