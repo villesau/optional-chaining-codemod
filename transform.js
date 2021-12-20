@@ -246,6 +246,7 @@ const mangleLodashGets = (
 };
 
 const nameEquals = (a, b) => a.name && b.name && a.name === b.name;
+const areThisExpressions = (a, b) => a.type === 'ThisExpression' && b.type === 'ThisExpression';
 const valueEquals = (a, b) =>
   a.value !== undefined && b.value !== undefined && a.value === b.value;
 
@@ -257,14 +258,16 @@ const isPropertyMatch = (a, b) => {
         valueEquals(a.property, b.property))
     );
   }
-  return !!(a && b && (nameEquals(a, b) || valueEquals(a, b)));
+  return !!(a && b && (nameEquals(a, b) || valueEquals(a, b) || areThisExpressions(a, b)));
 };
 
 const getDepth = (node, depth) =>
   node.object ? getDepth(node.object, depth + 1) : depth;
 
 const dive = (node, compare, j) => {
-  if (node.object.type === "MemberExpression") {
+  if(node.type === "ThisExpression") {
+    return node;
+  } else if (node.object.type === "MemberExpression" || node.object.type === "ThisExpression") {
     const d1 = getDepth(node, 0);
     const d2 = getDepth(compare, 0);
     const toCompare = d1 <= d2 ? compare.object : compare;
