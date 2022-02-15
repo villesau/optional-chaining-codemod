@@ -180,7 +180,7 @@ const mangleLodashGets = (
 
   const getImportSpecifier = ast
     .find("ImportDeclaration", { source: { type: literal, value: importLiteral } })
-    .find("ImportSpecifier", { imported: { name: funcName } });
+    .find("ImportSpecifier", { imported: { name: funcName } })
     .find("ImportDeclaration", {
       source: { type: literal, value: importLiteral }
     })
