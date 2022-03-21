@@ -118,10 +118,22 @@ const swapArguments = (node, options) => {
   return node;
 };
 
+const parenthesize = (node, replacement) => {
+  if (node.parentPath.value.type === "BinaryExpression") {
+    replacement.extra || (replacement.extra = {});
+    replacement.extra.parenthesized = true;
+  }
+
+  return replacement;
+};
+
 const replaceGetWithOptionalChain = (node, j, shouldSwapArgs) =>
-  node.value.arguments[2]
-    ? addWithNullishCoalescing(node, j)
-    : generateOptionalChain(shouldSwapArgs ? swapArguments(node) : node, j);
+  parenthesize(
+    node,
+    node.value.arguments[2]
+      ? addWithNullishCoalescing(node, j)
+      : generateOptionalChain(shouldSwapArgs ? swapArguments(node) : node, j)
+  );
 
 const mangleLodashGets = (
   ast,
