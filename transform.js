@@ -119,7 +119,14 @@ const swapArguments = (node, options) => {
 };
 
 const parenthesize = (node, replacement) => {
-  if (node.parentPath.value.type === "BinaryExpression") {
+  if (
+    [
+      "AwaitExpression",
+      "BinaryExpression",
+      "LogicalExpression",
+      "MemberExpression"
+    ].includes(node.parentPath.value.type)
+  ) {
     replacement.extra || (replacement.extra = {});
     replacement.extra.parenthesized = true;
   }
