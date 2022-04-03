@@ -109,7 +109,7 @@ const addWithNullishCoalescing = (node, j) =>
   j.logicalExpression(
     "??",
     generateOptionalChain(node, j),
-    node.value.arguments[2]
+    parenthesizeRight(node.value.arguments[2])
   );
 
 const swapArguments = (node, options) => {
@@ -118,15 +118,15 @@ const swapArguments = (node, options) => {
   return node;
 };
 
-const parenthesize = (node, replacement) => {
-  if (
-    [
-      "AwaitExpression",
-      "BinaryExpression",
-      "LogicalExpression",
-      "MemberExpression"
-    ].includes(node.parentPath.value.type)
-  ) {
+const parenthesizedExpressions = [
+  "AwaitExpression",
+  "BinaryExpression",
+  "LogicalExpression",
+  "MemberExpression"
+];
+
+const parenthesizeExpression = (node, replacement) => {
+  if (parenthesizedExpressions.includes(node.parentPath.value.type)) {
     replacement.extra || (replacement.extra = {});
     replacement.extra.parenthesized = true;
   }
@@ -134,8 +134,17 @@ const parenthesize = (node, replacement) => {
   return replacement;
 };
 
+const parenthesizeRight = node => {
+  if (parenthesizedExpressions.includes(node.type)) {
+    node.extra || (node.extra = {});
+    node.extra.parenthesized = true;
+  }
+
+  return node;
+};
+
 const replaceGetWithOptionalChain = (node, j, shouldSwapArgs) =>
-  parenthesize(
+  parenthesizeExpression(
     node,
     node.value.arguments[2]
       ? addWithNullishCoalescing(node, j)
