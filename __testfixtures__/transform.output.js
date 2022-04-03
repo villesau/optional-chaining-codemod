@@ -26,3 +26,4 @@ const foo24 = (foo?.bar ?? 0) > 0;
 const foo25 = (foo?.bar ?? 0) + 0;
 const foo26 = (foo?.bar ?? 0) ?? 0;
 const foo27 = await (foo?.bar ?? Promise.resolve());
+const foo28 = foo?.bar ?? (bar || "bar");

@@ -29,3 +29,4 @@ const foo24 = get(foo, "bar", 0) > 0;
 const foo25 = get(foo, "bar", 0) + 0;
 const foo26 = get(foo, "bar", 0) ?? 0;
 const foo27 = await get(foo, "bar", Promise.resolve());
+const foo28 = get(foo, "bar", bar || "bar");
